@@ -126,7 +126,7 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
         error: e instanceof Error ? e : new Error("Failed to fetch subscription"),
         isLoading: false,
       });
-      console.error("[sub] refetch error", e);
+      console.error("[sub] refetch error", JSON.stringify(e, null, 2));
     }
   },
 
