@@ -20,6 +20,7 @@ export interface Subscription {
   id: string;
   planId: PlanId;
   status: SubscriptionStatus;
+  provider: string;
   canceledAt: string | null;
   currentPeriodEnd: string | null;
   trialEndsAt: string | null;

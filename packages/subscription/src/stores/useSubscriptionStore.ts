@@ -83,7 +83,7 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
           .or(`expires_at.is.null,expires_at.gt.${now}`),
         supabase
           .from("just_subscriptions")
-          .select("id, plan_id, status, canceled_at, current_period_end, trial_ends_at")
+          .select("id, plan_id, status, provider, canceled_at, current_period_end, trial_ends_at")
           .in("status", ["active", "trialing", "past_due", "paused", "canceled"])
           .order("created_at", { ascending: false })
           .limit(1)
@@ -112,6 +112,7 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
               id: sub.id as string,
               planId: sub.plan_id as PlanId,
               status: sub.status as SubscriptionStatus,
+              provider: sub.provider as string,
               canceledAt: sub.canceled_at as string | null,
               currentPeriodEnd: sub.current_period_end as string | null,
               trialEndsAt: sub.trial_ends_at as string | null,
@@ -119,15 +120,18 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
           : null;
 
       set({ entitlements, subscription, isLoading: false, error: null });
+      console.log("[sub] refetch done", { entitlements, subscription });
     } catch (e) {
       set({
         error: e instanceof Error ? e : new Error("Failed to fetch subscription"),
         isLoading: false,
       });
+      console.error("[sub] refetch error", e);
     }
   },
 
   clear: () => {
+    console.log("[sub] clear");
     set({
       entitlements: [],
       subscription: null,
