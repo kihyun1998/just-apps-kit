@@ -41,6 +41,10 @@ export const dict: Record<string, Record<Locale, string>> = {
   // Upgrade modal
   "upgrade.title": { "ko-KR": "Pro로 업그레이드", "en-US": "Upgrade to Pro" },
   "upgrade.description": {
+    "ko-KR": "이 기능은 Pro 플랜에서 사용할 수 있습니다.",
+    "en-US": "This feature is available on the Pro plan.",
+  },
+  "upgrade.description.feature": {
     "ko-KR": "{feature} 기능은 Pro 플랜에서 사용할 수 있습니다.",
     "en-US": "{feature} is available on the Pro plan.",
   },
@@ -73,6 +77,9 @@ export const dict: Record<string, Record<Locale, string>> = {
   // Badge
   "badge.pro": { "ko-KR": "Pro", "en-US": "Pro" },
   "badge.free": { "ko-KR": "Free", "en-US": "Free" },
+
+  // App names
+  "app.logo": { "ko-KR": "Just Make Logo", "en-US": "Just Make Logo" },
 
   // Common
   "common.loading": { "ko-KR": "로딩 중...", "en-US": "Loading..." },
