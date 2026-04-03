@@ -1,6 +1,6 @@
 import Avatar from "boring-avatars";
 
-const PALETTE = ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"];
+const PALETTE = ["#818CF8", "#C084FC", "#F472B6", "#34D399", "#60A5FA"];
 
 interface BoringAvatarProps {
   name: string;
@@ -8,5 +8,5 @@ interface BoringAvatarProps {
 }
 
 export function BoringAvatar({ name, size = 32 }: BoringAvatarProps) {
-  return <Avatar size={size} name={name} variant="beam" colors={PALETTE} />;
+  return <Avatar size={size} name={name} variant="marble" colors={PALETTE} />;
 }

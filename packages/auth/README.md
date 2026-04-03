@@ -20,7 +20,7 @@ npm install @just-apps/auth
 The following are included in the package — you don't need to install them separately:
 
 - `lucide-react` — icons
-- `boring-avatars` — user avatars
+- `boring-avatars` — user avatars (marble gradient style)
 - `class-variance-authority`, `clsx`, `tailwind-merge` — styling utilities
 
 ## Setup
@@ -307,3 +307,20 @@ UI primitives available for direct use:
 ```ts
 import { Button, Spinner, GoogleIcon, BoringAvatar, cn } from "@just-apps/auth";
 ```
+
+### BoringAvatar
+
+Marble gradient avatar generated from user name/id. Each user gets a unique gradient pattern.
+
+```tsx
+import { BoringAvatar } from "@just-apps/auth";
+
+<BoringAvatar name={user.id} size={32} />
+```
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `name` | `string` | Yes | Seed for avatar generation (user id, email, etc.) |
+| `size` | `number` | No | Avatar size in px. Default: `32` |
+
+Default palette: `#818CF8`, `#C084FC`, `#F472B6`, `#34D399`, `#60A5FA`

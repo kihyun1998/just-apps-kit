@@ -1,6 +1,6 @@
 {
   "name": "@just-apps/auth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared auth UI components for Just Apps — login, terms agreement, account management",
   "type": "module",
   "license": "MIT",
