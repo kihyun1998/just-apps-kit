@@ -44,3 +44,7 @@ export {
   TrialBanner,
   type TrialBannerProps,
 } from "./components/TrialBanner";
+export {
+  CheckoutActivation,
+  type CheckoutActivationProps,
+} from "./components/CheckoutActivation";

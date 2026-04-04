@@ -81,6 +81,20 @@ export const dict: Record<string, Record<Locale, string>> = {
   // App names
   "app.logo": { "ko-KR": "Just Make Logo", "en-US": "Just Make Logo" },
 
+  // Checkout activation
+  "checkout.activating": {
+    "ko-KR": "구독을 활성화하고 있습니다...",
+    "en-US": "Activating your subscription...",
+  },
+  "checkout.success": {
+    "ko-KR": "구독이 활성화되었습니다!",
+    "en-US": "Subscription activated!",
+  },
+  "checkout.timeout": {
+    "ko-KR": "활성화에 시간이 걸리고 있습니다. 잠시 후 새로고침해 주세요.",
+    "en-US": "Activation is taking longer than expected. Please refresh shortly.",
+  },
+
   // Common
   "common.loading": { "ko-KR": "로딩 중...", "en-US": "Loading..." },
   "common.error": {
