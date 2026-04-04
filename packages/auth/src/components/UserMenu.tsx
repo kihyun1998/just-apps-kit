@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { Locale, AuthUser, TranslationOverrides } from "../types";
 import { t } from "../i18n";
-import { BoringAvatar } from "../ui/boring-avatar";
+import { MarbleAvatar } from "../ui/marble-avatar";
 import { LogOut, Settings, User } from "lucide-react";
 
 export interface UserMenuProps {
@@ -46,7 +46,7 @@ export function UserMenu({
         onClick={() => setOpen((prev) => !prev)}
         className="flex items-center rounded-full transition-opacity hover:opacity-80"
       >
-        <BoringAvatar name={`justapps:${user.email ?? user.id}`} size={32} />
+        <MarbleAvatar name={`justapps:${user.email ?? user.id}`} size={32} />
       </button>
 
       {open && (

@@ -19,7 +19,7 @@ export { UserMenu, type UserMenuProps } from "./components/UserMenu";
 export { Button, type ButtonProps, buttonVariants } from "./ui/button";
 export { Spinner } from "./ui/spinner";
 export { GoogleIcon } from "./ui/google-icon";
-export { BoringAvatar } from "./ui/boring-avatar";
+export { MarbleAvatar } from "./ui/marble-avatar";
 
 // i18n
 export { t, type TranslationKey } from "./i18n";

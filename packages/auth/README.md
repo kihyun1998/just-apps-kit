@@ -20,7 +20,7 @@ npm install @just-apps/auth
 These are included in the package — no separate installation needed:
 
 - `lucide-react` — icons
-- `boring-avatars` — user avatars (marble gradient style)
+- `boring-avatars` — avatar generation (marble gradient style)
 - `class-variance-authority`, `clsx`, `tailwind-merge` — styling utilities
 
 ## Setup
@@ -604,7 +604,7 @@ import type { Locale, Theme, AuthUser, TermItem, TranslationOverrides } from "@j
 UI primitives and utilities available for direct use:
 
 ```ts
-import { Button, Spinner, GoogleIcon, BoringAvatar, cn, t } from "@just-apps/auth";
+import { Button, Spinner, GoogleIcon, MarbleAvatar, cn, t } from "@just-apps/auth";
 ```
 
 | Export | Description |
@@ -612,18 +612,18 @@ import { Button, Spinner, GoogleIcon, BoringAvatar, cn, t } from "@just-apps/aut
 | `Button` | CVA-based button with `variant` and `size` props |
 | `Spinner` | Loading spinner. Accepts `size` prop (`"sm"`, `"md"`, `"lg"`) |
 | `GoogleIcon` | Google logo SVG icon |
-| `BoringAvatar` | Marble gradient avatar generated from a seed string. Props: `name` (string, required), `size` (number, default `32`) |
+| `MarbleAvatar` | Marble gradient avatar generated from a seed string. Props: `name` (string, required), `size` (number, default `32`) |
 | `cn` | `clsx` + `tailwind-merge` utility |
 | `t` | i18n function: `t(key, locale, overrides?)` |
 
-### BoringAvatar
+### MarbleAvatar
 
 Each user gets a unique marble gradient pattern based on their name/ID.
 
 ```tsx
-import { BoringAvatar } from "@just-apps/auth";
+import { MarbleAvatar } from "@just-apps/auth";
 
-<BoringAvatar name={user.id} size={40} />
+<MarbleAvatar name={user.id} size={40} />
 ```
 
 | Prop | Type | Required | Description |

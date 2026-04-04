@@ -2,11 +2,11 @@ import Avatar from "boring-avatars";
 
 const PALETTE = ["#818CF8", "#C084FC", "#F472B6", "#34D399", "#60A5FA"];
 
-interface BoringAvatarProps {
+interface MarbleAvatarProps {
   name: string;
   size?: number;
 }
 
-export function BoringAvatar({ name, size = 32 }: BoringAvatarProps) {
+export function MarbleAvatar({ name, size = 32 }: MarbleAvatarProps) {
   return <Avatar size={size} name={name} variant="marble" colors={PALETTE} />;
 }
