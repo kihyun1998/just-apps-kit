@@ -14,16 +14,18 @@ export interface PricingViewProps {
   currentPlanId: PlanId | null;
   isLoading: boolean;
   onSelectPlan: (planId: PlanId, interval: "monthly" | "yearly") => void;
+  freeFeatures?: string[];
+  proFeatures?: string[];
 }
 
-const FREE_FEATURES = {
-  "ko-KR": ["기본 기능 사용", "워터마크 포함"],
-  "en-US": ["Basic features", "With watermark"],
+const DEFAULT_FREE_FEATURES: Record<Locale, string[]> = {
+  "ko-KR": ["기본 기능 사용", "제한된 저장 공간"],
+  "en-US": ["Basic features", "Limited storage"],
 };
 
-const PRO_FEATURES = {
-  "ko-KR": ["모든 앱 Pro 기능", "워터마크 제거", "우선 지원"],
-  "en-US": ["All apps Pro features", "No watermark", "Priority support"],
+const DEFAULT_PRO_FEATURES: Record<Locale, string[]> = {
+  "ko-KR": ["확장된 저장 공간", "모든 프리미엄 기능", "새로운 앱 자동 포함"],
+  "en-US": ["Expanded storage", "All premium features", "New apps included"],
 };
 
 export function PricingView({
@@ -31,10 +33,14 @@ export function PricingView({
   currentPlanId,
   isLoading,
   onSelectPlan,
+  freeFeatures,
+  proFeatures,
 }: PricingViewProps) {
-  const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const ko = locale === "ko-KR";
   const proApps = PLAN_ENTITLEMENTS.just_apps_pro ?? [];
+  const resolvedFreeFeatures = freeFeatures ?? DEFAULT_FREE_FEATURES[locale];
+  const resolvedProFeatures = proFeatures ?? DEFAULT_PRO_FEATURES[locale];
 
   return (
     <div className="space-y-6">
@@ -53,25 +59,25 @@ export function PricingView({
       >
         <button
           type="button"
-          aria-pressed={interval === "monthly"}
+          aria-pressed={billingInterval === "monthly"}
           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-            interval === "monthly"
+            billingInterval === "monthly"
               ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           }`}
-          onClick={() => setInterval("monthly")}
+          onClick={() => setBillingInterval("monthly")}
         >
           {t("pricing.monthly", locale)}
         </button>
         <button
           type="button"
-          aria-pressed={interval === "yearly"}
+          aria-pressed={billingInterval === "yearly"}
           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-            interval === "yearly"
+            billingInterval === "yearly"
               ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           }`}
-          onClick={() => setInterval("yearly")}
+          onClick={() => setBillingInterval("yearly")}
         >
           {t("pricing.yearly", locale)}
         </button>
@@ -91,7 +97,7 @@ export function PricingView({
             </p>
           </div>
           <ul className="space-y-2">
-            {FREE_FEATURES[locale].map((feature) => (
+            {resolvedFreeFeatures.map((feature) => (
               <li key={feature} className="flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-muted-foreground shrink-0" />
                 {feature}
@@ -125,7 +131,7 @@ export function PricingView({
             </p>
           </div>
           <ul className="space-y-2">
-            {PRO_FEATURES[locale].map((feature) => (
+            {resolvedProFeatures.map((feature) => (
               <li key={feature} className="flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-brand shrink-0" />
                 {feature}
@@ -140,7 +146,7 @@ export function PricingView({
             <Button
               className="w-full"
               disabled={isLoading}
-              onClick={() => onSelectPlan("just_apps_pro", interval)}
+              onClick={() => onSelectPlan("just_apps_pro", billingInterval)}
             >
               {isLoading ? <Spinner size="sm" /> : t("pricing.select", locale)}
             </Button>
