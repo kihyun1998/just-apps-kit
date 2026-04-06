@@ -81,18 +81,18 @@ How the components fit together in the full authentication flow:
 [User visits]
      |
      v
- LoginView --(Google OAuth)--> [Supabase OAuth]
-                                      |
-                                      v
-                              AuthCallbackView
-                               |-- new user --> TermsAgreementView
-                               '-- existing --> home
-                                                  |
-                                                  v
-                                            [Authenticated]
-                                             |-- UserMenu (header)
-                                             |-- MyPageView (profile)
-                                             '-- AccountDeleteView
+ LoginButton (header) or LoginView --(Google OAuth)--> [Supabase OAuth]
+                                                              |
+                                                              v
+                                                      AuthCallbackView
+                                                       |-- new user --> TermsAgreementView
+                                                       '-- existing --> home
+                                                                          |
+                                                                          v
+                                                                    [Authenticated]
+                                                                     |-- UserMenu (header)
+                                                                     |-- MyPageView (profile)
+                                                                     '-- AccountDeleteView
 ```
 
 Each component handles UI only. Supabase calls and routing are passed in via props.
@@ -319,6 +319,27 @@ if (!user) return null;
 
 ---
 
+### LoginButton
+
+Compact login button for headers. Matches the `default` variant styling with a login icon.
+
+```tsx
+import { LoginButton } from "@just-apps/auth";
+
+<LoginButton
+  locale="ko-KR"
+  onClick={() => router.push("/login")}
+/>
+```
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `locale` | `Locale` | Yes | UI language |
+| `onClick` | `() => void` | Yes | Click handler (typically navigates to login page) |
+| `translations` | `TranslationOverrides` | No | Override default i18n strings |
+
+---
+
 ## Integration Guide
 
 Typical patterns for building auth pages with this package.
@@ -486,21 +507,21 @@ export default function AccountDeletePage() {
 }
 ```
 
-### 6. UserMenu in Header
+### 6. UserMenu + LoginButton in Header
 
 ```tsx
 // src/components/Header.tsx
-import { UserMenu } from "@just-apps/auth";
+import { UserMenu, LoginButton } from "@just-apps/auth";
 
 function Header() {
-  const { user, role, signOut } = useAuth();
+  const { user, role, loading, signOut } = useAuth();
   const locale = useLocale((s) => s.locale);
   const router = useRouter();
 
   return (
     <header>
       <nav>{/* ... */}</nav>
-      {user && (
+      {loading ? null : user ? (
         <UserMenu
           locale={locale}
           user={user}
@@ -508,6 +529,11 @@ function Header() {
           onMyPage={() => router.push("/mypage")}
           onAdmin={() => router.push("/admin")}
           onSignOut={() => signOut()}
+        />
+      ) : (
+        <LoginButton
+          locale={locale}
+          onClick={() => router.push("/login")}
         />
       )}
     </header>
@@ -578,6 +604,7 @@ Overrides take priority. Missing keys fall back to built-in translations.
 | UserMenu | `usermenu.admin` | 관리자 페이지 | Admin Dashboard |
 | | `usermenu.mypage` | 마이페이지 | My Page |
 | | `usermenu.logout` | 로그아웃 | Logout |
+| LoginButton | `common.login` | 로그인 | Login |
 | Common | `common.loading` | 로딩 중... | Loading... |
 | | `common.go_home` | 홈으로 | Go Home |
 

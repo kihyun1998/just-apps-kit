@@ -14,6 +14,10 @@ export {
   type AuthCallbackViewProps,
 } from "./components/AuthCallbackView";
 export { UserMenu, type UserMenuProps } from "./components/UserMenu";
+export {
+  LoginButton,
+  type LoginButtonProps,
+} from "./components/LoginButton";
 
 // UI
 export { Button, type ButtonProps, buttonVariants } from "./ui/button";

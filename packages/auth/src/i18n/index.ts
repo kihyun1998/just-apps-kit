@@ -86,6 +86,7 @@ const dict: Record<string, Record<Locale, string>> = {
     "ko-KR": "로그인 처리 중...",
     "en-US": "Processing login...",
   },
+  "common.login": { "ko-KR": "로그인", "en-US": "Login" },
   "common.go_home": { "ko-KR": "홈으로", "en-US": "Go Home" },
 
   // Footer (TermsAgreementView 간이 푸터)
