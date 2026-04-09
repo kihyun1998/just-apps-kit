@@ -27,7 +27,7 @@ interface UseCheckoutReturn {
 }
 
 const LEMON_SQUEEZY_SCRIPT_URL = "https://app.lemonsqueezy.com/js/lemon.js";
-const ALLOWED_CHECKOUT_ORIGIN = "https://app.lemonsqueezy.com";
+const ALLOWED_CHECKOUT_HOST_SUFFIX = ".lemonsqueezy.com";
 const SCRIPT_LOAD_TIMEOUT_MS = 10_000;
 const MAX_CONSECUTIVE_POLL_FAILURES = 5;
 
@@ -73,7 +73,13 @@ function loadLemonScript(): Promise<void> {
 }
 
 function validateCheckoutUrl(url: string): void {
-  if (!url.startsWith(ALLOWED_CHECKOUT_ORIGIN)) {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error("Invalid checkout URL");
+  }
+  if (parsed.protocol !== "https:" || !parsed.hostname.endsWith(ALLOWED_CHECKOUT_HOST_SUFFIX)) {
     throw new Error("Unexpected checkout URL origin");
   }
 }
