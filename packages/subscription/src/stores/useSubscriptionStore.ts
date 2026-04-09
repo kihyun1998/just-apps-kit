@@ -120,7 +120,6 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
           : null;
 
       set({ entitlements, subscription, isLoading: false, error: null });
-      console.log("[sub] refetch done", { entitlements, subscription });
     } catch (e) {
       set({
         error: e instanceof Error ? e : new Error("Failed to fetch subscription"),
