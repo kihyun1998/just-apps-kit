@@ -22,6 +22,9 @@ export interface TermsAgreementViewProps {
   onToggleLocale: () => void;
   onToggleTheme?: () => void;
   onSubmit: (agreed: Record<string, boolean>) => Promise<void>;
+  /** 동의 거부 시 호출. 있으면 제출 버튼 아래에 "동의하지 않고 나가기" 링크가 표시된다.
+   *  앱 측에서 로그아웃 / 홈 이동 등 원하는 동작을 연결한다. */
+  onCancel?: () => void;
   termsViewUrl?: (type: string, locale: Locale) => string;
   logoText?: string;
   logoHref?: string;
@@ -37,6 +40,7 @@ export function TermsAgreementView({
   onToggleLocale,
   onToggleTheme,
   onSubmit,
+  onCancel,
   termsViewUrl,
   logoText = "Just Apps",
   logoHref = "/",
@@ -210,6 +214,17 @@ export function TermsAgreementView({
               t("terms.submit", locale, translations)
             )}
           </Button>
+
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={submitting}
+              className="mt-3 w-full text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t("terms.decline", locale, translations)}
+            </button>
+          )}
         </div>
       </main>
 

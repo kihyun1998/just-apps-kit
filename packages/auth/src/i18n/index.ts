@@ -21,6 +21,10 @@ const dict: Record<string, Record<Locale, string>> = {
   "terms.agree_suffix": { "ko-KR": "동의", "en-US": "" },
   "terms.view": { "ko-KR": "보기", "en-US": "View" },
   "terms.submit": { "ko-KR": "동의하고 시작하기", "en-US": "Agree and Get Started" },
+  "terms.decline": {
+    "ko-KR": "동의하지 않고 나가기",
+    "en-US": "Decline and leave",
+  },
 
   // My Page
   "mypage.title": { "ko-KR": "마이페이지", "en-US": "My Page" },
