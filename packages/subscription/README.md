@@ -1,45 +1,45 @@
 # @just-apps/subscription
 
-Just Apps 공통 **구독(Subscription) UI 컴포넌트 라이브러리**. Next.js 홈페이지와 Tauri 데스크톱 앱들이 pricing / 구독 상태 / 업그레이드 / 트라이얼 / 결제 실패 배너 / 결제 후 활성화 대기 화면 등을 공유하기 위한 순수 presentational 라이브러리.
+Just Apps shared **subscription UI component library**. A pure presentational library that the Next.js homepage and Tauri desktop apps use to share pricing / subscription status / upgrade / trial / payment-failure banner / post-payment activation waiting screens, and so on.
 
-> **이 패키지는 구독 상태 관리나 결제 로직을 포함하지 않습니다.** Supabase client, `useSubscriptionStore` Zustand store, Lemon Squeezy 체크아웃 훅, entitlement 조회 hook, 웹훅 처리 등은 모두 소비 앱이 각자 구현하고 props로 주입합니다. 결제 provider (Lemon Squeezy / Stripe 등) 교체도 앱 영역입니다.
-
----
-
-## 1. 개요
-
-### 포함된 것
-
-- **React 컴포넌트 6개** — `PricingView`, `SubscriptionView`, `UpgradeModal`, `TrialBanner`, `PaymentFailedBanner`, `CheckoutActivation`
-- **UI 프리미티브 4개** — `Badge` (8 variant), `Button`, `Modal`, `Spinner`
-- **타입** — `PlanId`, `SubscriptionStatus`, `EntitlementSource`, `Subscription`, `Entitlement`, `Locale`, `TranslationOverrides`
-- **상수** — `PLAN_ENTITLEMENTS`, `PLAN_LABELS`
-- **i18n** — 자체 `t()` 함수 (파라미터 치환 지원) + ko-KR / en-US
-- **유틸** — `cn`
-
-### 포함되지 **않는** 것
-
-- ❌ `useSubscriptionStore` / `useSubscription` / `useEntitlement` / `useAllEntitlements` hooks (앱에 거주)
-- ❌ `useCheckout` hook — Lemon Squeezy 스크립트 로드 + API 엔드포인트 폴링 → 앱 거주
-- ❌ Supabase 테이블 쿼리 (`just_entitlements`, `just_subscriptions`)
-- ❌ 서버 전용 `hasAccess()`
-- ❌ Lemon Squeezy 웹훅 핸들러
-- ❌ 관리자 grant/revoke API
-
-### 설계 원칙
-
-auth 패키지와 동일:
-
-1. **Props-only** — 모든 데이터(`subscription`, `entitlements`)와 핸들러(`onStartSubscription`, `onUpgrade`, `onPoll`)를 props로
-2. **Framework-agnostic** — `next/*` import 없음, Tauri/Vite 호환
-3. **상태 없는 컴포넌트** — 내부 UI 상태(interval toggle, 확인 단계 등)만 `useState` 사용, 비즈니스 상태는 외부 주입
-4. **Provider-agnostic** — Lemon Squeezy / Stripe / Paddle 어느 것에도 결합되지 않음
+> **This package contains no subscription state management or payment logic.** The Supabase client, the `useSubscriptionStore` Zustand store, the Lemon Squeezy checkout hook, entitlement lookup hooks, and webhook handling are all implemented by the consuming app and injected via props. Swapping payment providers (Lemon Squeezy / Stripe, etc.) is also the app's concern.
 
 ---
 
-## 2. 설치
+## 1. Overview
 
-### pnpm 워크스페이스
+### What's included
+
+- **6 React components** — `PricingView`, `SubscriptionView`, `UpgradeModal`, `TrialBanner`, `PaymentFailedBanner`, `CheckoutActivation`
+- **4 UI primitives** — `Badge` (8 variants), `Button`, `Modal`, `Spinner`
+- **Types** — `PlanId`, `SubscriptionStatus`, `EntitlementSource`, `Subscription`, `Entitlement`, `Locale`, `TranslationOverrides`
+- **Constants** — `PLAN_ENTITLEMENTS`, `PLAN_LABELS`
+- **i18n** — built-in `t()` function (supports parameter substitution) + ko-KR / en-US
+- **Utilities** — `cn`
+
+### What's **not** included
+
+- ❌ `useSubscriptionStore` / `useSubscription` / `useEntitlement` / `useAllEntitlements` hooks (live in the app)
+- ❌ `useCheckout` hook — loads the Lemon Squeezy script + polls an API endpoint → lives in the app
+- ❌ Supabase table queries (`just_entitlements`, `just_subscriptions`)
+- ❌ Server-only `hasAccess()`
+- ❌ Lemon Squeezy webhook handlers
+- ❌ Admin grant/revoke APIs
+
+### Design principles
+
+Same as the auth package:
+
+1. **Props-only** — all data (`subscription`, `entitlements`) and handlers (`onStartSubscription`, `onUpgrade`, `onPoll`) are passed as props
+2. **Framework-agnostic** — no `next/*` imports; Tauri/Vite compatible
+3. **Stateless components** — `useState` is used only for internal UI state (interval toggle, confirmation step, etc.); business state is injected from outside
+4. **Provider-agnostic** — not coupled to Lemon Squeezy, Stripe, Paddle, or any specific provider
+
+---
+
+## 2. Installation
+
+### pnpm workspace
 
 ```json
 {
@@ -66,25 +66,52 @@ const nextConfig: NextConfig = {
 
 ### Tailwind
 
+**⚠️ This step is mandatory. If you skip it the components will render but look broken** — padding, background colors, borders, and margins will silently disappear.
+
+Tailwind v4 (and v3) does **not** scan `node_modules` by default, so any utility class that is only used inside this package is purged from the final CSS unless you explicitly point Tailwind at the package.
+
+Pick the snippet that matches how you consume the package:
+
+**Tailwind v4 — installed from npm (the usual case):**
+
 ```css
-/* globals.css (Tailwind v4) */
+@import "tailwindcss";
+@source "../node_modules/@just-apps/subscription/dist/**/*.{js,mjs}";
+```
+
+The `dist` output is produced by tsup and preserves `className` strings as plain literals, so Tailwind's static scanner can pick them up. Adjust the relative path so it resolves from your CSS file to your project's `node_modules`.
+
+**Tailwind v4 — pnpm workspace (this monorepo):**
+
+```css
 @import "tailwindcss";
 @source "../../packages/subscription/src/**/*.{ts,tsx}";
 ```
 
-필요한 토큰 (auth 패키지와 동일 + 아래 추가):
+**Tailwind v3 — installed from npm:**
 
-- `--brand`, `--brand-foreground` — Pro 강조 색상. Badge `active` / `admin` / `subscription` variant에서 사용
+```ts
+export default {
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "./node_modules/@just-apps/subscription/dist/**/*.{js,mjs}",
+  ],
+};
+```
+
+Required tokens (same as the auth package, plus the following):
+
+- `--brand`, `--brand-foreground` — Pro emphasis color. Used by the Badge `active` / `admin` / `subscription` variants
 
 ---
 
 ## 3. Quick Start
 
-앱 쪽 데이터 layer를 먼저 구현하고 (Supabase store / hook), 패키지 컴포넌트에 주입합니다.
+Implement the app-side data layer first (Supabase store / hooks), then inject it into the package components.
 
 ```tsx
 import { PricingView } from "@just-apps/subscription";
-import { useSubscription, useCheckout } from "@/subscription"; // 앱 hook
+import { useSubscription, useCheckout } from "@/subscription"; // app hooks
 
 export function PricingPage() {
   const { subscription } = useSubscription();
@@ -107,7 +134,7 @@ export function PricingPage() {
 
 ### `<PricingView />`
 
-Free / Pro 2 플랜 카드 + 월/연 주기 토글.
+Free / Pro two-plan cards + monthly/yearly interval toggle.
 
 ```tsx
 interface PricingViewProps {
@@ -120,22 +147,22 @@ interface PricingViewProps {
 }
 ```
 
-| Prop | 설명 |
+| Prop | Description |
 |---|---|
-| `currentPlanId` | 현재 구독 중인 플랜 (`null`이면 Free) |
-| `onSelectPlan` | Pro 선택 시 호출. `interval`은 내부 토글 상태 |
-| `freeFeatures` / `proFeatures` | (선택) 기본 feature 문구 대체. 언어별 기본값 존재 |
+| `currentPlanId` | The currently subscribed plan (`null` means Free) |
+| `onSelectPlan` | Called when Pro is selected. `interval` reflects the internal toggle state |
+| `freeFeatures` / `proFeatures` | (optional) Replace the default feature strings. Defaults exist per language |
 
-**동작:**
-- 월/연 주기는 컴포넌트 내부 `useState`
-- 현재 플랜 카드에는 "현재 플랜" 배지
-- Pro 버튼은 `isLoading` 시 스피너
+**Behavior:**
+- The monthly/yearly interval is internal `useState`
+- The current plan's card shows a "Current plan" badge
+- The Pro button shows a spinner while `isLoading`
 
 ---
 
 ### `<SubscriptionView />`
 
-마이페이지용 구독 상태 카드. 상태별 섹션 자동 분기.
+Subscription status card for the my page. Automatically branches into sections by state.
 
 ```tsx
 interface SubscriptionViewProps {
@@ -152,26 +179,26 @@ interface SubscriptionViewProps {
 }
 ```
 
-**상태 머신:**
+**State machine:**
 
-| `subscription` 상태 | 표시되는 섹션 | 활성 버튼 |
+| `subscription` state | Section shown | Active buttons |
 |---|---|---|
-| `null` | 빈 상태 (카드 아이콘 + "구독 시작") | `onStartSubscription` |
-| `active` | Pro 배지 + 만료일 + 관리/취소 버튼 | `onManageBilling`, `onCancelSubscription` |
-| `canceled` | canceled 배지 + 만료일 + 재구독 버튼 | `onResubscribe` |
-| `past_due` | past_due 배지 + `<PaymentFailedBanner />` | `onManageBilling` |
-| `paused` | paused 배지 + 재구독 버튼 | `onResubscribe` |
-| `trialing` | trialing 배지 + 남은 일수 + 업그레이드 버튼 | `onUpgrade` |
+| `null` | Empty state (card icon + "Start subscription") | `onStartSubscription` |
+| `active` | Pro badge + expiry date + manage/cancel buttons | `onManageBilling`, `onCancelSubscription` |
+| `canceled` | canceled badge + expiry date + resubscribe button | `onResubscribe` |
+| `past_due` | past_due badge + `<PaymentFailedBanner />` | `onManageBilling` |
+| `paused` | paused badge + resubscribe button | `onResubscribe` |
+| `trialing` | trialing badge + days remaining + upgrade button | `onUpgrade` |
 
-`entitlements.length > 0`이면 카드 하단에 "활성 권한" 섹션 추가 (appId별 Badge 나열).
+When `entitlements.length > 0`, an "Active entitlements" section is appended at the bottom of the card (listing badges per appId).
 
-`isLoading` / `error` 상태는 카드 전체를 로딩/에러 placeholder로 교체.
+`isLoading` / `error` states replace the entire card with a loading/error placeholder.
 
 ---
 
 ### `<UpgradeModal />`
 
-기능 게이트에서 띄우는 업그레이드 유도 모달.
+Upgrade-prompt modal shown from feature gates.
 
 ```tsx
 interface UpgradeModalProps {
@@ -183,18 +210,18 @@ interface UpgradeModalProps {
 }
 ```
 
-| Prop | 설명 |
+| Prop | Description |
 |---|---|
-| `feature` | (선택) 차단된 기능 이름. 있으면 "X 기능을 사용하려면..." 형태 메시지 |
-| `onUpgrade` | 업그레이드 버튼 클릭 |
+| `feature` | (optional) Name of the gated feature. If present, produces a "To use X..." message |
+| `onUpgrade` | Upgrade button click |
 
-`<Modal />` 프리미티브 기반. ESC / 바깥 클릭 / 포커스 트랩 자동 처리.
+Built on the `<Modal />` primitive. ESC / outside click / focus trap are handled automatically.
 
 ---
 
 ### `<TrialBanner />`
 
-페이지 상단에 표시하는 트라이얼 남은 기간 배너.
+Banner shown at the top of the page with the remaining trial time.
 
 ```tsx
 interface TrialBannerProps {
@@ -212,7 +239,7 @@ interface TrialBannerProps {
 
 ### `<PaymentFailedBanner />`
 
-결제 실패 알림. `SubscriptionView`의 `past_due` 섹션에서 자동 렌더되기도 하지만, 필요하면 다른 곳에서도 사용 가능.
+Payment failure notice. It's rendered automatically inside the `past_due` section of `SubscriptionView`, but you can also use it elsewhere if needed.
 
 ```tsx
 interface PaymentFailedBannerProps {
@@ -225,37 +252,37 @@ interface PaymentFailedBannerProps {
 
 ### `<CheckoutActivation />`
 
-결제 완료 후 백엔드가 webhook → entitlement 반영까지 걸리는 시간 동안 보여주는 폴링 UI.
+Polling UI shown between payment completion and the backend webhook → entitlement reflection.
 
 ```tsx
 interface CheckoutActivationProps {
   locale: Locale;
-  /** 2초 간격으로 호출되는 폴링 함수. true 반환 시 활성화 완료. */
+  /** Polling function called every 2s. Returning true means activation is complete. */
   onPoll: () => Promise<boolean>;
   onSuccess: () => void;
   onTimeout: () => void;
-  maxWaitMs?: number; // 기본 30000
-  intervalMs?: number; // 기본 2000
+  maxWaitMs?: number; // default 30000
+  intervalMs?: number; // default 2000
 }
 ```
 
-**동작:**
+**Behavior:**
 
-1. 마운트 즉시 `onPoll()` 호출
-2. `true` 반환 → 성공 UI (체크 아이콘 + "활성화 완료") + `onSuccess()`
-3. `false` 반환 → `intervalMs` 후 재시도
-4. `maxWaitMs` 초과 → 타임아웃 UI + `onTimeout()`
-5. `onPoll`이 throw해도 무시 (네트워크 불안정 대응)
+1. Calls `onPoll()` immediately on mount
+2. Returning `true` → success UI (checkmark icon + "Activation complete") + `onSuccess()`
+3. Returning `false` → retries after `intervalMs`
+4. Exceeding `maxWaitMs` → timeout UI + `onTimeout()`
+5. Throws from `onPoll` are ignored (tolerates flaky networks)
 
-**핵심:** 콜백 참조는 `useRef`로 안정화돼서 소비 측이 `useCallback`을 안 써도 무한 재렌더링 없음.
+**Key point:** callback refs are stabilized via `useRef`, so consumers don't have to use `useCallback` to avoid infinite re-renders.
 
 ---
 
-## 5. UI 프리미티브
+## 5. UI Primitives
 
 ### `<Badge />`
 
-구독 상태 / entitlement 소스별 색상 variant가 내장된 배지.
+Badge with built-in color variants for subscription states / entitlement sources.
 
 ```tsx
 import { Badge, type BadgeVariant } from "@just-apps/subscription";
@@ -263,27 +290,27 @@ import { Badge, type BadgeVariant } from "@just-apps/subscription";
 <Badge variant="active">Pro</Badge>
 ```
 
-**Variants (8개):**
+**Variants (8):**
 
-| Variant | 용도 | 기본 스타일 |
+| Variant | Use | Default style |
 |---|---|---|
-| `active` | 활성 구독 | brand 색상 |
-| `trialing` | 트라이얼 | accent |
-| `canceled` | 취소됨 | muted |
-| `expired` | 만료 | muted + opacity-60 |
-| `past_due` | 결제 실패 | destructive |
-| `paused` | 일시정지 | secondary |
-| `admin` / `subscription` | entitlement 소스 | brand |
-| `promo` / `trial` | entitlement 소스 | accent |
-| `default` | 폴백 | muted |
+| `active` | Active subscription | brand color |
+| `trialing` | Trialing | accent |
+| `canceled` | Canceled | muted |
+| `expired` | Expired | muted + opacity-60 |
+| `past_due` | Payment failed | destructive |
+| `paused` | Paused | secondary |
+| `admin` / `subscription` | Entitlement source | brand |
+| `promo` / `trial` | Entitlement source | accent |
+| `default` | Fallback | muted |
 
 ### `<Button />`
 
-auth 패키지의 Button과 동일한 shadcn 스타일 (동일 variant/size). 중복 정의는 향후 통합 가능하지만 현재는 패키지 독립성 유지를 위해 각자 소유.
+Same shadcn-style Button as the auth package (identical variants/sizes). Deduplication is possible later, but currently each package owns its own to stay independent.
 
 ### `<Modal />`
 
-접근성 대응 모달. ESC, 바깥 클릭, 포커스 트랩(Tab 순환), body scroll lock 자동 처리.
+Accessibility-aware modal. ESC, outside click, focus trap (Tab cycling), and body scroll lock are handled automatically.
 
 ```tsx
 interface ModalProps {
@@ -293,13 +320,13 @@ interface ModalProps {
   children: React.ReactNode;
   className?: string;
   wide?: boolean;      // max-w-2xl vs max-w-md
-  noPadding?: boolean; // 내부 padding 제거
+  noPadding?: boolean; // removes inner padding
 }
 ```
 
 ### `<Spinner />`
 
-auth 패키지와 동일 (Loader2 래퍼).
+Same as the auth package (Loader2 wrapper).
 
 ---
 
@@ -324,14 +351,14 @@ export interface Subscription {
   id: string;
   planId: PlanId;
   status: SubscriptionStatus;
-  provider: string;         // "lemon_squeezy" 등
+  provider: string;         // "lemon_squeezy", etc.
   canceledAt: string | null;
   currentPeriodEnd: string | null;
   trialEndsAt: string | null;
 }
 
 export interface Entitlement {
-  appId: string;            // "logo", "insight", "mlb" 등
+  appId: string;            // "logo", "insight", "mlb", etc.
   source: EntitlementSource;
   expiresAt: string | null;
 }
@@ -343,11 +370,11 @@ export type TranslationOverrides = Partial<
 
 ---
 
-## 7. 상수
+## 7. Constants
 
 ### `PLAN_ENTITLEMENTS`
 
-플랜별로 포함되는 앱(appId) 목록.
+List of apps (appIds) bundled with each plan.
 
 ```ts
 export const PLAN_ENTITLEMENTS: Record<string, string[]> = {
@@ -355,11 +382,11 @@ export const PLAN_ENTITLEMENTS: Record<string, string[]> = {
 };
 ```
 
-Pro 구매 시 `logo` 앱에 대한 entitlement가 자동 부여되는 정책을 표현. 새 Pro 앱 추가 시 이 배열에 추가.
+Represents the policy that buying Pro automatically grants the `logo` app's entitlement. Add to this array when adding a new Pro app.
 
 ### `PLAN_LABELS`
 
-UI 표시용 플랜 라벨.
+Plan labels for UI display.
 
 ```ts
 export const PLAN_LABELS: Record<string, { ko: string; en: string }> = {
@@ -367,15 +394,15 @@ export const PLAN_LABELS: Record<string, { ko: string; en: string }> = {
 };
 ```
 
-> ⚠️ `just_apps_ult`는 타입에는 있지만 현재 상수에서는 주석 처리. Ultimate 플랜 도입 시 활성화.
+> ⚠️ `just_apps_ult` exists in the type but is currently commented out in the constants. Enable it when the Ultimate plan launches.
 
 ---
 
 ## 8. i18n
 
-### `t()` 함수
+### The `t()` function
 
-auth 패키지와 거의 동일하지만 **파라미터 치환** 기능이 추가됨:
+Almost identical to the auth package, but with **parameter substitution**:
 
 ```ts
 import { t } from "@just-apps/subscription";
@@ -387,11 +414,11 @@ t("subscription.available_until", "ko-KR", undefined, { date: "2026년 5월 1일
 // → "2026년 5월 1일까지 이용 가능"
 ```
 
-문자열 내 `{key}` 토큰이 `params[key]` 값으로 치환됩니다.
+`{key}` tokens inside a string are substituted with `params[key]`.
 
-### 번역 키 Namespace
+### Translation key namespaces
 
-| Namespace | 용도 |
+| Namespace | Purpose |
 |---|---|
 | `pricing.*` | PricingView (title, monthly/yearly, free/pro, current_plan, select, ...) |
 | `subscription.*` | SubscriptionView (active, canceled, past_due, paused, trialing, available_until, manage_billing, cancel, resubscribe, start, none, ...) |
@@ -399,14 +426,14 @@ t("subscription.available_until", "ko-KR", undefined, { date: "2026년 5월 1일
 | `upgrade.*` | UpgradeModal (title, description, description.feature, button, cancel) |
 | `payment_failed.*` | PaymentFailedBanner (title, description, action) |
 | `checkout.*` | CheckoutActivation (activating, success, timeout) |
-| `app.*` | `app.{appId}` — appId별 레이블 (entitlement 배지 등) |
-| `common.*` | 공통 (error 등) |
+| `app.*` | `app.{appId}` — per-appId label (for entitlement badges, etc.) |
+| `common.*` | Shared (error, etc.) |
 
-정확한 키 리스트는 `packages/subscription/src/i18n/translations.ts` 참조.
+See `packages/subscription/src/i18n/translations.ts` for the exact key list.
 
-### 오버라이드 패턴
+### Override pattern
 
-auth와 동일:
+Same as auth:
 
 ```tsx
 <PricingView
@@ -414,27 +441,27 @@ auth와 동일:
   currentPlanId={null}
   isLoading={false}
   onSelectPlan={...}
-  // translations prop 없음 — PricingView는 현재 오버라이드 미지원 (기본 번역 사용)
+  // no translations prop — PricingView currently doesn't support overrides (uses defaults)
 />
 ```
 
-> ⚠️ 일부 컴포넌트는 `translations` prop이 없습니다. 필요하면 각 컴포넌트에 prop 추가 필요 (auth/TermsAgreementView 패턴 참고).
+> ⚠️ Some components don't have a `translations` prop. If you need it, add the prop to the specific component (see the auth/TermsAgreementView pattern).
 
 ---
 
-## 9. 앱 통합 가이드
+## 9. App integration guide
 
-### Next.js (이 저장소)
+### Next.js (this repo)
 
-**핵심 분업:**
+**Core split of responsibilities:**
 
-- `src/subscription/stores/useSubscriptionStore.ts` — Zustand store, Supabase 테이블 쿼리
+- `src/subscription/stores/useSubscriptionStore.ts` — Zustand store, Supabase table queries
 - `src/subscription/hooks/use-subscription.ts` — store selector
-- `src/subscription/hooks/use-entitlement.ts` — appId별 entitlement 조회
-- `src/subscription/hooks/use-checkout.ts` — Lemon Squeezy 스크립트 로드 + checkout API fetch + polling
-- `@just-apps/subscription` → **UI만**
+- `src/subscription/hooks/use-entitlement.ts` — per-appId entitlement lookup
+- `src/subscription/hooks/use-checkout.ts` — loads the Lemon Squeezy script + fetches the checkout API + polls
+- `@just-apps/subscription` → **UI only**
 
-**통합 예제 (`src/views/MyPage.tsx`):**
+**Integration example (`src/views/MyPage.tsx`):**
 
 ```tsx
 import { SubscriptionView } from "@just-apps/subscription";
@@ -443,7 +470,7 @@ import {
   useAllEntitlements,
   useCheckout,
   useSubscriptionStore,
-} from "@/subscription"; // 앱 hooks
+} from "@/subscription"; // app hooks
 
 export function MyPage() {
   const { subscription, isLoading: subLoading, error: subError } = useSubscription();
@@ -468,14 +495,14 @@ export function MyPage() {
 }
 ```
 
-### Tauri / Vite 앱
+### Tauri / Vite apps
 
-Tauri 앱은 자체 subscription store와 checkout flow를 구현합니다. UI 컴포넌트만 재사용:
+The Tauri app implements its own subscription store and checkout flow. Only the UI components are reused:
 
 ```tsx
 // packages/just-cut/src/pages/Pricing.tsx
 import { PricingView } from "@just-apps/subscription";
-import { useSubscription } from "./lib/subscription-store"; // Tauri 앱 자체 store
+import { useSubscription } from "./lib/subscription-store"; // the Tauri app's own store
 
 export function PricingPage() {
   const { subscription } = useSubscription();
@@ -486,7 +513,7 @@ export function PricingPage() {
       currentPlanId={subscription?.planId ?? null}
       isLoading={false}
       onSelectPlan={async (planId, interval) => {
-        // Tauri용: 브라우저로 체크아웃 URL 열기
+        // Tauri: open the checkout URL in the browser
         const { url } = await fetchCheckoutUrl(planId, interval);
         await open(url); // @tauri-apps/api/shell
       }}
@@ -497,30 +524,30 @@ export function PricingPage() {
 
 ---
 
-## 10. 서버 / API 계약
+## 10. Server / API contract
 
-이 패키지는 서버 API를 제공하지 않지만, 홈페이지 앱은 다음과 같이 구성되어 있고 Tauri 앱도 유사하게 구현하면 기존 컴포넌트를 그대로 쓸 수 있습니다:
+This package does not provide a server API, but the homepage app is structured as below and Tauri apps can reuse the same components by implementing something similar:
 
 - `POST /api/checkout` → `{ url: string }` (Lemon Squeezy checkout URL)
-- `GET /api/subscription/status` → `{ hasActiveSubscription: boolean }` (폴링용)
-- `POST /api/subscription/cancel` → 구독 취소
-- `POST /api/webhooks/lemon-squeezy` → 웹훅 수신 (provider → DB 반영)
+- `GET /api/subscription/status` → `{ hasActiveSubscription: boolean }` (for polling)
+- `POST /api/subscription/cancel` → cancel subscription
+- `POST /api/webhooks/lemon-squeezy` → receive webhooks (provider → DB reflection)
 
-`useCheckout` hook의 `checkoutApiUrl`, `statusApiUrl` 옵션은 이 엔드포인트를 가리킵니다. Tauri 앱은 자기 백엔드(or Supabase Edge Function) URL로 바꿔서 동일 hook 재활용 가능.
+The `useCheckout` hook's `checkoutApiUrl` and `statusApiUrl` options point at these endpoints. A Tauri app can reuse the same hook by pointing them at its own backend (or a Supabase Edge Function) URLs.
 
 ---
 
-## 11. DB 스키마 가정
+## 11. DB schema assumptions
 
-`useSubscriptionStore`(앱 쪽)가 쿼리하는 Supabase 테이블:
+Supabase tables queried by `useSubscriptionStore` (on the app side):
 
 ### `just_subscriptions`
 
-| 컬럼 | 타입 | 비고 |
+| Column | Type | Note |
 |---|---|---|
 | `id` | uuid | PK |
 | `user_id` | uuid | FK → auth.users |
-| `plan_id` | text | `just_apps_pro` 등 |
+| `plan_id` | text | `just_apps_pro`, etc. |
 | `status` | text | `active` / `trialing` / `past_due` / ... |
 | `provider` | text | `lemon_squeezy` |
 | `canceled_at` | timestamptz | nullable |
@@ -530,48 +557,48 @@ export function PricingPage() {
 
 ### `just_entitlements`
 
-| 컬럼 | 타입 | 비고 |
+| Column | Type | Note |
 |---|---|---|
 | `id` | uuid | PK |
 | `user_id` | uuid | |
-| `app_id` | text | `logo`, `insight`, `mlb` 등 |
+| `app_id` | text | `logo`, `insight`, `mlb`, etc. |
 | `source` | text | `subscription` / `admin` / `promo` / `trial` |
 | `expires_at` | timestamptz | nullable |
 
-RLS 정책은 `user_id = auth.uid()` 기반 SELECT 허용. 쓰기는 서버(service_role) 또는 관리자 API 경유.
+The RLS policy allows SELECT where `user_id = auth.uid()`. Writes go through the server (service_role) or admin APIs.
 
-> ⚠️ **다른 앱이 이 패키지의 타입을 그대로 쓰려면 동일 스키마를 따라야 합니다.** 스키마가 다르면 store는 앱에서 직접 작성하고, 패키지 타입과 매핑 레이어를 만드세요.
+> ⚠️ **For another app to reuse this package's types as-is, it must follow the same schema.** If the schema differs, write the store in the app and build a mapping layer against the package types.
 
 ---
 
 ## 12. FAQ
 
-**Q. 왜 `useCheckout` hook이 패키지에 없나요?**
-A. Lemon Squeezy 스크립트 URL 하드코딩, `/api/checkout` 같은 Next API 엔드포인트 의존, polling 로직 등이 섞여 있어서 "순수 UI" 경계를 넘습니다. 엔드포인트만 옵션으로 뺀 버전은 이론상 가능하지만, Tauri 앱은 Lemon Squeezy 대신 완전히 다른 provider를 쓸 가능성이 높아서 현재는 앱별 구현이 더 깔끔합니다.
+**Q. Why isn't the `useCheckout` hook in the package?**
+A. It mixes a hardcoded Lemon Squeezy script URL, a dependency on the `/api/checkout` Next API endpoint, polling logic, and so on — it crosses the "pure UI" boundary. A version with only the endpoint as an option is theoretically possible, but Tauri apps are likely to use a completely different provider instead of Lemon Squeezy, so per-app implementations are currently cleaner.
 
-**Q. `CheckoutActivation`은 폴링 로직이 있는데 왜 패키지에 있나요?**
-A. 폴링 **함수**를 `onPoll` prop으로 주입받기 때문에 패키지는 타이머/상태 관리만 담당합니다. Supabase나 특정 API를 직접 호출하지 않습니다. 로직 vs 표현의 경계를 "외부 효과가 DI인가"로 판단했습니다.
+**Q. `CheckoutActivation` contains polling logic — why is it in the package?**
+A. The polling **function** is injected as the `onPoll` prop, so the package is only responsible for timer/state management. It doesn't call Supabase or a specific API directly. I drew the logic-vs-presentation line at "is the side effect injected via DI?"
 
-**Q. Badge의 variant가 너무 구독 중심이에요. 범용으로 쓰고 싶어요.**
-A. 현재 Badge는 이 패키지의 내부 사용에 최적화돼 있습니다. 범용 Badge가 필요하면 별도 UI 패키지로 분리하거나 앱에서 자체 Badge를 만드세요.
+**Q. The Badge variants are too subscription-centric. I want a general-purpose badge.**
+A. The current Badge is optimized for this package's internal use. If you need a general-purpose Badge, split it into a separate UI package or build your own in the app.
 
-**Q. PLAN_ENTITLEMENTS에 앱을 추가하면 어디를 같이 바꿔야 하나요?**
-A. `packages/subscription/src/constants.ts` 한 곳만 바꾸면 됩니다. 단, 해당 appId의 entitlement row가 실제로 DB에 들어가도록 `src/app/api/webhooks/lemon-squeezy/route.ts`의 발급 로직을 점검하세요.
+**Q. When I add an app to PLAN_ENTITLEMENTS, where else do I need to change?**
+A. Only `packages/subscription/src/constants.ts`. However, make sure that the entitlement row for that appId is actually inserted into the DB by checking the issuance logic in `src/app/api/webhooks/lemon-squeezy/route.ts`.
 
-**Q. Stripe로 바꾸면 이 패키지 수정이 많이 필요한가요?**
-A. 거의 없습니다. 패키지 컴포넌트는 `Subscription` / `Entitlement` 타입만 알고, provider 이름은 `subscription.provider: string` 필드뿐입니다. Stripe webhook → 같은 테이블에 동일 구조로 upsert하면 UI 쪽은 그대로 동작합니다.
-
----
-
-## 13. 버전 / 변경 이력
-
-현재 `0.0.0` (private workspace 전용).
+**Q. Does switching to Stripe require a lot of changes in this package?**
+A. Almost none. The package components only know the `Subscription` / `Entitlement` types, and the provider name is just the `subscription.provider: string` field. As long as the Stripe webhook → the same tables in the same structure, the UI side keeps working as-is.
 
 ---
 
-## 14. 관련 문서
+## 13. Versioning / changelog
 
-- `docs/ROADMAP_PACKAGE_MIGRATION.md` — 패키지화 로드맵
-- `docs/ROADMAP_SUBSCRIPTION.md` — 구독 시스템 설계
-- `docs/SPEC_SUBSCRIPTION.md` — 구독 API / 스키마 명세
-- `packages/auth/README.md` — 인증 UI 패키지 (자매 패키지)
+Currently `0.0.0` (private workspace only).
+
+---
+
+## 14. Related docs
+
+- `docs/ROADMAP_PACKAGE_MIGRATION.md` — packaging roadmap
+- `docs/ROADMAP_SUBSCRIPTION.md` — subscription system design
+- `docs/SPEC_SUBSCRIPTION.md` — subscription API / schema spec
+- `packages/auth/README.md` — authentication UI package (sibling package)

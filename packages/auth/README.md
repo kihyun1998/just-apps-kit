@@ -1,45 +1,45 @@
 # @just-apps/auth
 
-Just Apps 공통 **인증 UI 컴포넌트 라이브러리**. Next.js 홈페이지와 Tauri 데스크톱 앱들이 로그인 / 약관 동의 / 마이페이지 / 계정 삭제 / 유저 메뉴 등 인증 화면을 공유하기 위한 순수 presentational 라이브러리.
+Just Apps shared **authentication UI component library**. A pure presentational library that the Next.js homepage and Tauri desktop apps use to share auth screens — login, terms agreement, my page, account deletion, user menu, and so on.
 
-> **이 패키지는 인증 로직을 포함하지 않습니다.** Supabase client, 세션 store, OAuth flow, 쿠키/저장소 처리 등은 모두 소비 앱(Next.js, Tauri)이 각자 구현하고 props로 주입합니다. 그래서 SSO 같은 세션 공유 문제가 발생할 수 없고, 어떤 프레임워크에도 의존하지 않습니다.
-
----
-
-## 1. 개요
-
-### 포함된 것
-
-- **React 컴포넌트 7개** — 로그인, 약관 동의, 마이페이지, 계정 삭제, OAuth 콜백, 유저 메뉴, 로그인 버튼
-- **UI 프리미티브 4개** — `Button`, `Spinner`, `GoogleIcon`, `MarbleAvatar`
-- **타입** — `Locale`, `Theme`, `AuthUser`, `TermItem`, `TranslationOverrides`
-- **i18n** — 자체 `t()` 함수 + ko-KR / en-US 번역 사전 (오버라이드 가능)
-- **유틸** — `cn` (Tailwind 클래스 머지)
-
-### 포함되지 **않는** 것
-
-- ❌ Supabase client / `@supabase/supabase-js` 호출
-- ❌ 세션 관리 (Zustand store, localStorage, 쿠키)
-- ❌ OAuth 리다이렉트 / 콜백 처리
-- ❌ `user_agreements` 같은 DB 스키마 의존 쿼리
-- ❌ Next.js 서버 유틸 / 라우트 핸들러
-- ❌ `next/*` 모듈 import (Tauri/Vite 호환을 위해)
-
-### 설계 원칙
-
-1. **Props-only** — 모든 상태와 동작은 props로 주입 (`user`, `onGoogleLogin`, `onSignOut` 등)
-2. **Framework-agnostic** — `next/link`, `next/navigation`, `next/image` 등 사용 금지. 필요하면 callback prop으로 위임 (`onRoute(destination)`, `logoHref` 등)
-3. **DI 우선** — Supabase client, 라우터, 번역 함수 등을 절대 직접 import하지 않음
-4. **슬롯 패턴** — `TermsAgreementView.headerSlot` 같이 앱별로 다른 부분은 ReactNode로 받음
-5. **"use client"** — 모든 컴포넌트에 `"use client"` 디렉티브. Next는 인식, Vite는 no-op → 양쪽 호환
+> **This package contains no authentication logic.** The Supabase client, session store, OAuth flow, cookie/storage handling, and so on are all implemented by the consuming app (Next.js, Tauri) and injected as props. That means SSO-style session-sharing issues can't occur, and the package has no framework dependencies.
 
 ---
 
-## 2. 설치
+## 1. Overview
 
-### pnpm 워크스페이스 (현재 monorepo)
+### What's included
 
-루트 `package.json`:
+- **8 React components** — login, terms agreement (view + card), my page, account deletion, OAuth callback, user menu, login button
+- **4 UI primitives** — `Button`, `Spinner`, `GoogleIcon`, `MarbleAvatar`
+- **Types** — `Locale`, `Theme`, `AuthUser`, `TermItem`, `TranslationOverrides`
+- **i18n** — built-in `t()` function + ko-KR / en-US translation dictionaries (overridable)
+- **Utilities** — `cn` (Tailwind class merge)
+
+### What's **not** included
+
+- ❌ Supabase client / `@supabase/supabase-js` calls
+- ❌ Session management (Zustand store, localStorage, cookies)
+- ❌ OAuth redirect / callback handling
+- ❌ DB schema-dependent queries such as `user_agreements`
+- ❌ Next.js server utilities / route handlers
+- ❌ `next/*` module imports (for Tauri/Vite compatibility)
+
+### Design principles
+
+1. **Props-only** — all state and behavior is injected via props (`user`, `onGoogleLogin`, `onSignOut`, etc.)
+2. **Framework-agnostic** — no `next/link`, `next/navigation`, `next/image`, etc. When needed, delegate via a callback prop (`onRoute(destination)`, `logoHref`, etc.)
+3. **DI first** — never directly import the Supabase client, router, or translation function
+4. **Slot pattern** — app-specific areas such as `TermsAgreementView.headerSlot` are received as ReactNode
+5. **"use client"** — every component has the `"use client"` directive. Next recognizes it, Vite treats it as a no-op → compatible with both
+
+---
+
+## 2. Installation
+
+### pnpm workspace (current monorepo)
+
+Root `package.json`:
 
 ```json
 {
@@ -49,7 +49,7 @@ Just Apps 공통 **인증 UI 컴포넌트 라이브러리**. Next.js 홈페이�
 }
 ```
 
-Next.js 앱의 경우 `next.config.ts`:
+For a Next.js app, in `next.config.ts`:
 
 ```ts
 const nextConfig: NextConfig = {
@@ -60,40 +60,67 @@ const nextConfig: NextConfig = {
 
 ### Peer Dependencies
 
-소비 앱에 다음이 설치돼 있어야 합니다:
+The consuming app must have the following installed:
 
 - `react` ^19
 - `react-dom` ^19
 - `lucide-react` ^1
-- `boring-avatars` (MarbleAvatar 사용 시)
-- `class-variance-authority`, `clsx`, `tailwind-merge` (Button / cn)
+- `boring-avatars` (when using MarbleAvatar)
+- `class-variance-authority`, `clsx`, `tailwind-merge` (for Button / cn)
 
-### Tailwind 설정
+### Tailwind configuration
 
-패키지 소스의 className이 최종 CSS에 포함되도록 Tailwind `content` 스캔 경로를 추가하세요.
+**⚠️ This step is mandatory. If you skip it the components will render but look broken** — padding, background colors, borders, and margins will silently disappear.
 
-**Tailwind v4 (globals.css):**
+Tailwind v4 (and v3) does **not** scan `node_modules` by default, so any utility class that is only used inside this package (e.g. `bg-accent`, `rounded-lg`, `mt-8`, `border-t`) is purged from the final CSS unless you explicitly point Tailwind at the package.
+
+Pick the snippet that matches how you consume the package:
+
+**Tailwind v4 — installed from npm (the usual case):**
+
+```css
+@import "tailwindcss";
+@source "../node_modules/@just-apps/auth/dist/**/*.{js,mjs}";
+```
+
+The `dist` output is produced by tsup and preserves `className` strings as plain literals, so Tailwind's static scanner can pick them up. Adjust the relative path so it resolves from your CSS file to your project's `node_modules`.
+
+**Tailwind v4 — pnpm workspace (this monorepo):**
 
 ```css
 @import "tailwindcss";
 @source "../../packages/auth/src/**/*.{ts,tsx}";
 ```
 
-**Tailwind v3 (tailwind.config.ts):**
+**Tailwind v3 — installed from npm:**
 
 ```ts
 export default {
   content: [
     "./src/**/*.{ts,tsx}",
-    "./node_modules/@just-apps/auth/src/**/*.{ts,tsx}",
+    "./node_modules/@just-apps/auth/dist/**/*.{js,mjs}",
   ],
   // ...
 };
 ```
 
-### 필요한 Tailwind 토큰
+**Tailwind v3 — pnpm workspace:**
 
-패키지 컴포넌트는 다음 CSS 변수 기반 색상을 사용합니다. 소비 앱의 디자인 시스템에 이 토큰들이 정의돼 있어야 합니다:
+```ts
+export default {
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "../../packages/auth/src/**/*.{ts,tsx}",
+  ],
+  // ...
+};
+```
+
+**How to tell if you forgot this step:** open the rendered auth screen and check whether the "Agree to all" row in `TermsAgreementView` has a visible rounded accent background and whether there's a horizontal divider between it and the individual terms. If both are missing and everything feels crammed together, you're missing the `@source` / `content` entry.
+
+### Required Tailwind tokens
+
+The package components use the following CSS variable-based colors. The consuming app's design system must define these tokens:
 
 - `--background`, `--foreground`
 - `--card`, `--card-foreground`
@@ -104,7 +131,7 @@ export default {
 - `--destructive`, `--destructive-foreground`
 - `--border`, `--input`, `--ring`
 
-> ⚠️ **주의**: `--secondary`와 `--card`가 너무 가까운 값이면 다크모드에서 영역 구분이 사라집니다. 충분한 명도 차이(최소 ~3%)를 유지하세요.
+> ⚠️ **Note**: if `--secondary` and `--card` are too close in value, region separation disappears in dark mode. Keep a sufficient brightness delta (at least ~3%).
 
 ---
 
@@ -112,8 +139,8 @@ export default {
 
 ```tsx
 import { LoginView } from "@just-apps/auth";
-import { useAuth } from "@/stores/useAuth"; // 앱에서 구현한 auth store
-import { useLocale } from "@/stores/useLocale"; // 앱에서 구현한 locale store
+import { useAuth } from "@/stores/useAuth"; // auth store implemented by the app
+import { useLocale } from "@/stores/useLocale"; // locale store implemented by the app
 
 export function LoginPage() {
   const signInWithGoogle = useAuth((s) => s.signInWithGoogle);
@@ -128,7 +155,7 @@ export function LoginPage() {
 }
 ```
 
-핵심 패턴: 패키지가 UI를 그리고, 앱이 상태와 동작을 주입한다. 역방향 의존성 없음.
+The core pattern: the package draws the UI, the app injects state and behavior. No reverse dependency.
 
 ---
 
@@ -136,7 +163,7 @@ export function LoginPage() {
 
 ### `<LoginView />`
 
-Google OAuth 로그인 카드.
+Google OAuth login card.
 
 ```tsx
 interface LoginViewProps {
@@ -146,13 +173,13 @@ interface LoginViewProps {
 }
 ```
 
-| Prop | 설명 |
+| Prop | Description |
 |---|---|
-| `locale` | 표시 언어 (`"ko-KR"` / `"en-US"`) |
-| `onGoogleLogin` | Google 버튼 클릭 시 호출. 앱의 OAuth flow 시작 함수 주입 |
-| `translations` | (선택) 앱별 번역 오버라이드 |
+| `locale` | Display language (`"ko-KR"` / `"en-US"`) |
+| `onGoogleLogin` | Called when the Google button is clicked. Inject the app's OAuth flow starter |
+| `translations` | (optional) App-specific translation overrides |
 
-**예제:**
+**Example:**
 
 ```tsx
 <LoginView
@@ -168,7 +195,7 @@ interface LoginViewProps {
 
 ### `<LoginButton />`
 
-헤더 등에 쓰는 작은 "로그인" 버튼.
+Small "Login" button used in headers and such.
 
 ```tsx
 interface LoginButtonProps {
@@ -182,7 +209,7 @@ interface LoginButtonProps {
 
 ### `<UserMenu />`
 
-아바타 + 드롭다운 메뉴 (마이페이지 / 관리자 / 로그아웃).
+Avatar + dropdown menu (my page / admin / sign out).
 
 ```tsx
 interface UserMenuProps {
@@ -196,21 +223,21 @@ interface UserMenuProps {
 }
 ```
 
-| Prop | 설명 |
+| Prop | Description |
 |---|---|
-| `user` | `{ id, email?, created_at? }` — 앱의 세션 유저 객체 |
-| `role` | `"admin"`이면 관리자 메뉴, 아니면 마이페이지 메뉴 |
-| `onMyPage` / `onAdmin` / `onSignOut` | 각 메뉴 클릭 핸들러 |
+| `user` | `{ id, email?, created_at? }` — the app's session user object |
+| `role` | `"admin"` shows the admin menu, otherwise shows the my-page menu |
+| `onMyPage` / `onAdmin` / `onSignOut` | Click handlers for each menu item |
 
-**동작:**
-- 바깥 클릭 시 닫힘 (mousedown 리스너)
-- 아바타는 `MarbleAvatar`로 자동 생성 (이메일/ID 해시 기반)
+**Behavior:**
+- Closes on outside click (mousedown listener)
+- The avatar is generated automatically by `MarbleAvatar` (hashed from email/ID)
 
 ---
 
 ### `<MyPageView />`
 
-마이페이지 프로필 카드 + 로그아웃 / 계정 삭제 버튼.
+My page profile card + sign-out / delete-account buttons.
 
 ```tsx
 interface MyPageViewProps {
@@ -222,13 +249,15 @@ interface MyPageViewProps {
 }
 ```
 
-표시: 이메일, 가입일(`user.created_at` 기반, `toLocaleDateString`), 로그아웃 버튼, 계정 삭제 링크.
+Displays: email, join date (derived from `user.created_at` via `toLocaleDateString`), sign-out button, delete-account link.
 
 ---
 
 ### `<TermsAgreementView />`
 
-약관 동의 화면. 전체 페이지 레이아웃(헤더·푸터 포함)으로 렌더되며, 슬롯으로 커스터마이즈 가능.
+Terms agreement screen. Rendered as a full-page layout (including header and footer) and customizable via slots.
+
+Internally composes `<TermsAgreementCard />` (see below) inside a `min-h-screen` + header + `<main>` + footer shell. If you don't need the page shell, import `TermsAgreementCard` directly instead.
 
 ```tsx
 interface TermsAgreementViewProps {
@@ -238,34 +267,84 @@ interface TermsAgreementViewProps {
   onToggleLocale: () => void;
   onToggleTheme?: () => void;
   onSubmit: (agreed: Record<string, boolean>) => Promise<void>;
+  onCancel?: () => void;
   termsViewUrl?: (type: string, locale: Locale) => string;
   logoText?: string;
   logoHref?: string;
   headerSlot?: React.ReactNode;
   footerSlot?: React.ReactNode;
+  hideHeader?: boolean;
+  hideFooter?: boolean;
   translations?: TranslationOverrides;
 }
 ```
 
-| Prop | 설명 |
+| Prop | Description |
 |---|---|
-| `terms` | 약관 항목 배열. 각 항목은 `{ id, type, title, required }` |
-| `onSubmit` | 제출 시 호출. 인수는 `{ [type]: boolean }` 맵 (예: `{ terms_of_service: true, privacy_policy: true }`) |
-| `termsViewUrl` | (선택) 각 약관 "보기" 링크 URL 생성 함수 |
-| `logoText` / `logoHref` | (선택) 기본 헤더의 로고 (기본값 `"Just Apps"` / `"/"`) |
-| `headerSlot` / `footerSlot` | (선택) 기본 헤더/푸터 대체 |
-| `onToggleTheme` | (선택) 생략하면 테마 토글 버튼 숨김 (테마 강제 상황용) |
+| `terms` | Array of term items. Each item is `{ id, type, title, required }` |
+| `onSubmit` | Called on submit. The argument is a `{ [type]: boolean }` map (e.g. `{ terms_of_service: true, privacy_policy: true }`) |
+| `onCancel` | (optional) When provided, a "decline and leave" link is shown below the submit button. Wire it to sign-out / navigate-home / whatever the app needs |
+| `termsViewUrl` | (optional) URL generator for each term's "view" link |
+| `logoText` / `logoHref` | (optional) Logo in the default header (defaults to `"Just Apps"` / `"/"`) |
+| `headerSlot` / `footerSlot` | (optional) Replaces the default header/footer |
+| `hideHeader` | (optional) If `true`, the default header (logo + locale/theme toggles) is not rendered at all. Useful for desktop apps that have their own title bar. Default `false` |
+| `hideFooter` | (optional) If `true`, the default © footer is not rendered. Default `false` |
+| `onToggleTheme` | (optional) Omit to hide the theme toggle button (for forced-theme scenarios) |
 
-**기본 동작:**
-- "전체 동의" 체크박스 → 모든 항목 토글
-- 필수 약관 전부 체크돼야 제출 버튼 활성화
-- 제출 중 로딩 스피너 표시
+**Default behavior:**
+- "Agree to all" checkbox → toggles every item
+- The submit button activates only when all required terms are checked
+- A loading spinner is shown during submission
+
+---
+
+### `<TermsAgreementCard />`
+
+Just the terms agreement card — no page layout, no header, no footer. All the checkbox state, "agree to all" logic, required-terms validation, and submission flow lives here; `TermsAgreementView` is a thin wrapper that composes this card inside a full-page shell.
+
+Use this directly when you need the card in your own layout — e.g. a desktop app with its own title bar, a modal dialog, or a custom multi-column page.
+
+```tsx
+interface TermsAgreementCardProps {
+  locale: Locale;
+  terms: TermItem[];
+  onSubmit: (agreed: Record<string, boolean>) => Promise<void>;
+  onCancel?: () => void;
+  termsViewUrl?: (type: string, locale: Locale) => string;
+  translations?: TranslationOverrides;
+  className?: string;
+}
+```
+
+| Prop | Description |
+|---|---|
+| `terms` / `onSubmit` / `onCancel` / `termsViewUrl` / `translations` | Same semantics as `TermsAgreementView` |
+| `className` | (optional) Extra classes merged onto the card's outer `<div>`. Use this to override width, margin, background, etc. Default base classes are `w-full max-w-md rounded-xl border border-border bg-card p-8` |
+
+**Example (desktop app, custom layout):**
+
+```tsx
+import { TermsAgreementCard } from "@just-apps/auth";
+
+export function DesktopTermsScreen() {
+  return (
+    <div className="flex items-center justify-center p-6">
+      <TermsAgreementCard
+        locale="ko-KR"
+        terms={terms}
+        onSubmit={handleSubmit}
+        onCancel={handleDecline}
+      />
+    </div>
+  );
+}
+```
 
 ---
 
 ### `<AccountDeleteView />`
 
-계정 삭제 경고 + 확인 2단계 UI.
+Account deletion warning + two-step confirmation UI.
 
 ```tsx
 interface AccountDeleteViewProps {
@@ -278,19 +357,19 @@ interface AccountDeleteViewProps {
 }
 ```
 
-**상태 머신:**
+**State machine:**
 
-1. `user === null` → 로그인 안내 + Google 로그인 버튼
-2. 로그인 상태 → "계정 삭제" 버튼
-3. 클릭 → "정말 삭제하시겠습니까?" 확인 다이얼로그
-4. 확인 → `onDelete()` 호출, 진행 중 로딩, 실패 시 에러 로그
-5. 성공 → "계정이 삭제되었습니다" + 홈으로 버튼
+1. `user === null` → login prompt + Google login button
+2. Signed in → "Delete account" button
+3. Click → "Are you sure you want to delete?" confirmation dialog
+4. Confirm → calls `onDelete()`, shows loading state, logs errors on failure
+5. Success → "Account deleted" + "Go home" button
 
 ---
 
 ### `<AuthCallbackView />`
 
-OAuth 콜백 대기 화면 + 자동 라우팅 트리거.
+OAuth callback waiting screen + automatic route trigger.
 
 ```tsx
 interface AuthCallbackViewProps {
@@ -301,23 +380,23 @@ interface AuthCallbackViewProps {
 }
 ```
 
-**로직:**
+**Logic:**
 
-- `loading` 동안 스피너 표시
-- 로딩 끝나면 `useEffect`에서 `onRoute(destination)` 호출:
+- Shows a spinner while `loading`
+- Once loading finishes, a `useEffect` calls `onRoute(destination)`:
   - `!user` → `"login"`
   - `isNewUser` → `"terms"`
-  - 그 외 → `"home"`
+  - otherwise → `"home"`
 
-앱은 `onRoute` 내부에서 자기 라우터(Next `useRouter`, react-router 등)로 실제 이동.
+Inside `onRoute`, the app performs the actual navigation with its own router (Next's `useRouter`, react-router, etc.).
 
 ---
 
-## 5. UI 프리미티브
+## 5. UI Primitives
 
 ### `<Button />`
 
-shadcn 스타일 버튼. 5개 variant × 4개 size.
+shadcn-style button. 5 variants × 4 sizes.
 
 ```tsx
 import { Button, buttonVariants, type ButtonProps } from "@just-apps/auth";
@@ -328,33 +407,33 @@ import { Button, buttonVariants, type ButtonProps } from "@just-apps/auth";
 **Variants:** `default` | `destructive` | `outline` | `ghost` | `link`
 **Sizes:** `default` | `sm` | `lg` | `icon`
 
-`buttonVariants` cva 함수도 export되어 다른 컴포넌트에서 스타일 재사용 가능.
+The `buttonVariants` cva function is also exported so other components can reuse the styles.
 
 ### `<Spinner />`
 
-로딩 스피너 (`lucide-react`의 `Loader2` 래퍼).
+Loading spinner (a wrapper around `lucide-react`'s `Loader2`).
 
 ```tsx
 <Spinner size="lg" className="text-primary" />
 ```
 
-Sizes: `sm` (16px) | `md` (24px, 기본) | `lg` (32px)
+Sizes: `sm` (16px) | `md` (24px, default) | `lg` (32px)
 
 ### `<GoogleIcon />`
 
-Google 로고 SVG (공식 4색). `className` prop으로 크기 조절 (기본 `h-5 w-5`).
+Google logo SVG (the official 4 colors). Size is controlled via the `className` prop (defaults to `h-5 w-5`).
 
 ### `<MarbleAvatar />`
 
-[boring-avatars](https://github.com/boringdesigners/boring-avatars) 기반 해시 아바타.
+Hash avatar based on [boring-avatars](https://github.com/boringdesigners/boring-avatars).
 
 ```tsx
 <MarbleAvatar name={`justapps:${user.email ?? user.id}`} size={32} />
 ```
 
-- 같은 `name` → 항상 같은 아바타 (결정적)
-- 5색 팔레트 고정: `#818CF8 #C084FC #F472B6 #34D399 #60A5FA`
-- `justapps:` 프리픽스 권장 (다른 서비스의 같은 이메일과 충돌 방지)
+- Same `name` → same avatar every time (deterministic)
+- Fixed 5-color palette: `#818CF8 #C084FC #F472B6 #34D399 #60A5FA`
+- The `justapps:` prefix is recommended (prevents collisions with other services that share the same email)
 
 ---
 
@@ -372,7 +451,7 @@ export interface AuthUser {
 
 export interface TermItem {
   id: string;
-  type: string;       // 예: "terms_of_service", "privacy_policy", "marketing"
+  type: string;       // e.g. "terms_of_service", "privacy_policy", "marketing"
   title: string;
   required: boolean;
   content?: string;
@@ -383,25 +462,25 @@ export type TranslationOverrides = Partial<
 >;
 ```
 
-> `AuthUser`는 의도적으로 Supabase의 `User` 타입과 구조적으로 호환되게 좁혀져 있습니다. Supabase 세션에서 꺼낸 객체를 그대로 넘겨도 동작합니다.
+> `AuthUser` is intentionally narrowed to be structurally compatible with Supabase's `User` type. You can pass a user object pulled straight from a Supabase session.
 
 ---
 
 ## 7. i18n
 
-### `t()` 함수
+### The `t()` function
 
 ```ts
 import { t } from "@just-apps/auth";
 
 t("login.title", "ko-KR");        // "로그인"
 t("login.title", "en-US");        // "Login"
-t("missing.key", "ko-KR");        // "missing.key" (fallback: key 그대로)
+t("missing.key", "ko-KR");        // "missing.key" (fallback: the key itself)
 ```
 
-### 번역 오버라이드
+### Translation overrides
 
-앱별로 특정 키의 문구만 바꾸고 싶을 때:
+When you want to change only a specific key's copy for one app:
 
 ```tsx
 <LoginView
@@ -416,21 +495,21 @@ t("missing.key", "ko-KR");        // "missing.key" (fallback: key 그대로)
 />
 ```
 
-오버라이드된 키는 해당 컴포넌트 트리 내에서만 적용됩니다 (전역 X).
+Overridden keys apply only within that component tree (not globally).
 
-### 번역 키 전체 목록
+### Full list of translation keys
 
 | Namespace | Keys |
 |---|---|
 | `login.*` | `title`, `subtitle`, `google` |
-| `terms.*` | `title`, `subtitle`, `agree_all`, `required`, `optional`, `agree_suffix`, `view`, `submit` |
+| `terms.*` | `title`, `subtitle`, `agree_all`, `required`, `optional`, `agree_suffix`, `view`, `submit`, `decline` |
 | `mypage.*` | `title`, `email`, `joined`, `delete_account`, `logout` |
 | `delete.*` | `title`, `subtitle`, `login_required`, `login`, `data_title`, `data_email`, `data_agreements`, `data_activity`, `warning`, `confirm_button`, `confirm_title`, `confirm_message`, `confirm_yes`, `confirm_cancel`, `processing`, `success` |
 | `usermenu.*` | `admin`, `admin_badge`, `mypage`, `logout` |
 | `common.*` | `loading`, `auth_processing`, `login`, `go_home` |
 | `footer.*` | `copyright` |
 
-키 타입 안전성이 필요하면:
+For type-safe keys:
 
 ```ts
 import type { TranslationKey } from "@just-apps/auth";
@@ -438,13 +517,13 @@ import type { TranslationKey } from "@just-apps/auth";
 
 ---
 
-## 8. 앱 통합 가이드
+## 8. App integration guide
 
-### Next.js (이 저장소)
+### Next.js (this repo)
 
-현재 홈페이지의 adapter 패턴:
+The homepage's current adapter pattern:
 
-**`src/components/common/UserMenu.tsx`** — 앱 상태를 주입하는 얇은 래퍼:
+**`src/components/common/UserMenu.tsx`** — a thin wrapper that injects app state:
 
 ```tsx
 'use client';
@@ -474,23 +553,23 @@ export function UserMenu() {
 }
 ```
 
-**원칙**: 페이지 shell (라우팅, 세션 접근, 헤더/푸터 조립)은 앱에, presentational 껍데기는 패키지에.
+**Principle**: the page shell (routing, session access, header/footer assembly) lives in the app; the presentational shell lives in the package.
 
-### Tauri / Vite 앱
+### Tauri / Vite apps
 
-기본적으로 Next와 동일 패턴:
+Fundamentally the same pattern as Next:
 
 ```tsx
 // packages/xxx-tauri-app/src/pages/Login.tsx
 import { LoginView } from "@just-apps/auth";
-import { supabase } from "./lib/supabase"; // Tauri 앱의 자체 Supabase client
+import { supabase } from "./lib/supabase"; // the Tauri app's own Supabase client
 
 export function LoginPage() {
   return (
     <LoginView
       locale="ko-KR"
       onGoogleLogin={async () => {
-        // Tauri용 loopback OAuth flow
+        // Loopback OAuth flow for Tauri
         await startLoopbackOAuth();
       }}
     />
@@ -498,41 +577,41 @@ export function LoginPage() {
 }
 ```
 
-**주의사항:**
+**Caveats:**
 
-1. Tauri 앱의 Tailwind 설정에 패키지 경로 추가 필요
-2. OAuth redirect는 Next처럼 `window.location.origin + "/auth/callback"`을 쓸 수 없음 → loopback 서버 / deep link 사용
-3. `next/*` import는 패키지 안에 단 하나도 없으므로 Tauri 빌드에 문제 없음
+1. The Tauri app's Tailwind config must include the package path
+2. OAuth redirect can't use `window.location.origin + "/auth/callback"` like Next does → use a loopback server / deep link
+3. The package has zero `next/*` imports, so Tauri builds work fine
 
 ---
 
 ## 9. FAQ
 
-**Q. Supabase client를 패키지가 들고 있으면 안 되나요?**
-A. 안 됩니다. 패키지가 `@supabase/supabase-js`를 import하는 순간 앱마다 중복 인스턴스가 생기고, 세션 singleton이 깨지며, SSR cookie adapter 같은 프레임워크 의존이 끼어듭니다. 과거 시도에서 이것 때문에 전체 롤백한 적 있습니다 (`9c1f98e`). 각 앱이 자기 client를 만들고 props/callback으로 주입하세요.
+**Q. Can the package hold the Supabase client?**
+A. No. The moment the package imports `@supabase/supabase-js`, each app gets a duplicate instance, the session singleton breaks, and framework dependencies like an SSR cookie adapter creep in. An earlier attempt had to be fully rolled back because of this (`9c1f98e`). Each app should create its own client and inject it via props/callbacks.
 
-**Q. `useAuth` 같은 hook을 패키지에 넣으면 안 되나요?**
-A. auth store는 앱마다 스키마가 다릅니다 (`user_agreements` 테이블, `role` 컬럼, 약관 규칙 등). 일반화하려면 모든 것을 DI로 받아야 해서 배보다 배꼽이 커집니다. 앱별로 직접 구현하세요.
+**Q. Can hooks like `useAuth` live in the package?**
+A. Auth stores have different schemas per app (`user_agreements` table, `role` column, terms rules, etc.). Generalizing them would require DI for everything, which isn't worth it. Implement them per app.
 
-**Q. 다크모드 색상이 이상해요.**
-A. 이 패키지는 Tailwind CSS 토큰(`--card`, `--secondary` 등)을 소비 앱의 디자인 시스템에 의존합니다. 특히 `--secondary`와 `--card`가 가까운 값이면 영역 구분이 안 됩니다. 소비 앱의 `globals.css` 다크 토큰을 조정하거나, 해당 컴포넌트의 Tailwind 클래스를 조정해주세요.
+**Q. My dark mode colors look wrong.**
+A. This package depends on the consuming app's design system for Tailwind CSS tokens (`--card`, `--secondary`, etc.). In particular, if `--secondary` and `--card` are close in value, regions become indistinguishable. Adjust your app's `globals.css` dark tokens or tweak the Tailwind classes on the affected component.
 
-**Q. Tauri에서도 `"use client"` 디렉티브가 필요한가요?**
-A. 필요 없지만 무해합니다. Vite는 이 디렉티브를 무시하고, Next에서는 필수이므로 양쪽 호환을 위해 그대로 둡니다.
+**Q. Do I need the `"use client"` directive in Tauri too?**
+A. It isn't needed but it's harmless. Vite ignores the directive and Next requires it, so it stays for dual compatibility.
 
-**Q. i18n 오버라이드 말고 새 언어 추가는요?**
-A. 현재 `Locale` 타입이 `"ko-KR" | "en-US"` 두 개로 하드코딩돼 있습니다. 새 언어가 필요하면 패키지 자체 수정이 필요합니다.
-
----
-
-## 10. 버전 / 변경 이력
-
-현재 `0.0.0` (private workspace 전용). 외부 npm 배포는 아직 지원하지 않습니다. 버전 정책 / changelog는 추후 Phase 7에서 도입 예정.
+**Q. What about adding a new language beyond i18n overrides?**
+A. The `Locale` type is currently hardcoded to `"ko-KR" | "en-US"`. Adding a new language requires changes inside the package itself.
 
 ---
 
-## 11. 관련 문서
+## 10. Versioning / changelog
 
-- `docs/ROADMAP_PACKAGE_MIGRATION.md` — 패키지화 로드맵 & 설계 결정
-- `packages/subscription/README.md` — 구독 UI 패키지 (자매 패키지)
-- `README.md` (루트) — 전체 모노레포 구조
+Currently `0.0.0` (private workspace only). External npm publishing is not yet supported. Versioning policy / changelog will be introduced later in Phase 7.
+
+---
+
+## 11. Related docs
+
+- `docs/ROADMAP_PACKAGE_MIGRATION.md` — packaging roadmap & design decisions
+- `packages/subscription/README.md` — subscription UI package (sibling package)
+- `README.md` (root) — overall monorepo structure

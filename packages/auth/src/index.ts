@@ -4,6 +4,10 @@ export {
   TermsAgreementView,
   type TermsAgreementViewProps,
 } from "./components/TermsAgreementView";
+export {
+  TermsAgreementCard,
+  type TermsAgreementCardProps,
+} from "./components/TermsAgreementCard";
 export { MyPageView, type MyPageViewProps } from "./components/MyPageView";
 export {
   AccountDeleteView,

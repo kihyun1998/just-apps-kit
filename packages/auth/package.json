@@ -1,11 +1,11 @@
 {
   "name": "@just-apps/auth",
-  "version": "0.2.0",
+  "version": "0.4.2",
   "description": "Just Apps shared auth UI components (login, terms agreement, my page, user menu, account delete) — framework-agnostic, props-only, Tailwind token driven.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/just-apps/just-apps-homepage.git",
+    "url": "git+https://github.com/just-apps/just-apps-homepage.git",
     "directory": "packages/auth"
   },
   "main": "./dist/index.js",

@@ -1,11 +1,11 @@
 {
   "name": "@just-apps/subscription",
-  "version": "0.2.0",
+  "version": "0.2.3",
   "description": "Just Apps shared subscription UI components (pricing, subscription status, upgrade modal, trial banner, checkout activation) — framework-agnostic, props-only, Tailwind token driven.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/just-apps/just-apps-homepage.git",
+    "url": "git+https://github.com/just-apps/just-apps-homepage.git",
     "directory": "packages/subscription"
   },
   "main": "./dist/index.js",
