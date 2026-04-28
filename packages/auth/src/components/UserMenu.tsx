@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { DropdownMenu as DM } from "radix-ui";
+import { LogOut, Settings, User } from "lucide-react";
 import type { Locale, AuthUser, TranslationOverrides } from "../types";
 import { t } from "../i18n";
 import { MarbleAvatar } from "../ui/marble-avatar";
-import { LogOut, Settings, User } from "lucide-react";
 
 export interface UserMenuProps {
   locale: Locale;
@@ -16,6 +16,10 @@ export interface UserMenuProps {
   translations?: TranslationOverrides;
 }
 
+const itemClass =
+  "flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm outline-none cursor-default " +
+  "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground transition-colors";
+
 export function UserMenu({
   locale,
   user,
@@ -25,77 +29,62 @@ export function UserMenu({
   onSignOut,
   translations,
 }: UserMenuProps) {
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const isAdmin = role === "admin";
 
   return (
-    <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center rounded-full transition-[opacity,transform] duration-150 hover:opacity-80 active:scale-95"
-      >
-        <MarbleAvatar name={`justapps:${user.email ?? user.id}`} size={32} />
-      </button>
+    <DM.Root>
+      <DM.Trigger asChild>
+        <button
+          type="button"
+          aria-label={user.email ?? undefined}
+          className="flex items-center rounded-full transition-[opacity,transform] duration-150 hover:opacity-80 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          <MarbleAvatar name={`justapps:${user.email ?? user.id}`} size={32} />
+        </button>
+      </DM.Trigger>
 
-      {open && (
-        <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-border bg-card p-1 shadow-md z-50">
-          <div className="px-3 py-2 border-b border-border">
+      <DM.Portal>
+        <DM.Content
+          align="end"
+          sideOffset={8}
+          className={
+            "z-50 w-48 rounded-lg border border-border bg-card p-1 shadow-md outline-none " +
+            "data-[state=open]:animate-in data-[state=closed]:animate-out " +
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 " +
+            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 " +
+            "data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2"
+          }
+        >
+          <DM.Label className="px-3 py-2 border-b border-border">
             <p className="text-sm font-medium truncate">{user.email}</p>
             {isAdmin && (
               <span className="text-xs text-muted-foreground">
                 {t("usermenu.admin_badge", locale, translations)}
               </span>
             )}
-          </div>
+          </DM.Label>
 
           {isAdmin ? (
-            <button
-              onClick={() => {
-                setOpen(false);
-                onAdmin();
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent active:bg-accent/70 transition-colors"
-            >
+            <DM.Item onSelect={onAdmin} className={itemClass}>
               <Settings className="h-4 w-4" />
               {t("usermenu.admin", locale, translations)}
-            </button>
+            </DM.Item>
           ) : (
-            <button
-              onClick={() => {
-                setOpen(false);
-                onMyPage();
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent active:bg-accent/70 transition-colors"
-            >
+            <DM.Item onSelect={onMyPage} className={itemClass}>
               <User className="h-4 w-4" />
               {t("usermenu.mypage", locale, translations)}
-            </button>
+            </DM.Item>
           )}
 
-          <button
-            onClick={() => {
-              setOpen(false);
-              onSignOut();
-            }}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive hover:bg-accent active:bg-accent/70 transition-colors"
+          <DM.Item
+            onSelect={onSignOut}
+            className={`${itemClass} text-destructive`}
           >
             <LogOut className="h-4 w-4" />
             {t("usermenu.logout", locale, translations)}
-          </button>
-        </div>
-      )}
-    </div>
+          </DM.Item>
+        </DM.Content>
+      </DM.Portal>
+    </DM.Root>
   );
 }

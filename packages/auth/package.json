@@ -37,6 +37,7 @@
     "boring-avatars": "^2",
     "class-variance-authority": "^0.7",
     "clsx": "^2",
+    "radix-ui": "^1.4",
     "tailwind-merge": "^3"
   },
   "devDependencies": {
