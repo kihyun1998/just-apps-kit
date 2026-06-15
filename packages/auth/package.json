@@ -1,7 +1,7 @@
 {
   "name": "@just-apps/auth",
-  "version": "0.4.2",
-  "description": "Just Apps shared auth UI components (login, terms agreement, my page, user menu, account delete) — framework-agnostic, props-only, Tailwind token driven.",
+  "version": "0.5.0",
+  "description": "Just Apps shared auth UI components (login, terms agreement, my page, user menu, account delete) + the shared terms content — framework-agnostic, props-only, Tailwind token driven.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,6 +16,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./terms": {
+      "types": "./dist/terms.d.ts",
+      "import": "./dist/terms.mjs",
+      "require": "./dist/terms.js"
     }
   },
   "files": [

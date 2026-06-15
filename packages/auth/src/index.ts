@@ -43,3 +43,7 @@ export type {
 
 // Utils
 export { cn } from "./lib/utils";
+
+// Terms content is a SEPARATE server-safe subpath ("@just-apps/auth/terms") so it
+// is importable from server routes too (this main entry is "use client").
+// See just-learn ADR-0008.
