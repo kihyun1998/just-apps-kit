@@ -13,3 +13,11 @@ Uses the five default labels: `needs-triage`, `needs-info`, `ready-for-agent`, `
 ### Domain docs
 
 Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+## Map
+
+`docs/map/README.md` is the entry point. Before designing a change, open the territory it lands in and treat its `## Blast radius` and `## Cross-cutting invariants` as a checklist; after the change, update that note and run `node scripts/check-map.mjs`.
+
+## Comments
+
+A comment says what the code is. Why it is this way, what it deliberately leaves out, the trap and the measured value go to the territory note under `docs/map/`; history goes to the commit message. Comments written before this rule still carry the rest: never delete one whose content the map does not yet hold — move it first (`decant`).
