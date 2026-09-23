@@ -1,5 +1,4 @@
-// Server-safe entry ("@just-apps/subscription/core"): types + constants only,
-// no React and no "use client" banner, so route handlers get real values.
+// Server-safe entry ("@just-apps/subscription/core"): types + constants only — docs/map/invariant/client-server-entry-split.md
 export type {
   Locale,
   TranslationOverrides,

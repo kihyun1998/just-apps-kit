@@ -18,6 +18,7 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 - Polling starts on the overlay's `Checkout.Success` event, or immediately when the overlay API is missing and the URL opened in a new tab instead.
 - Two independent pollers with the same 30 s / 2 s defaults: `useCheckout` stops after 5 consecutive failures; `CheckoutActivation` ignores failures and polls an injected `onPoll` until timeout.
 - On success neither one refreshes the store; the app does that in `onSuccess`.
+- Callback props (`onPoll`, `onSuccess`, `onTimeout`) are read through refs, so a caller passing a fresh function every render does not restart polling. `AuthCallbackView` does the same with `onRoute` ([login](login.md)).
 
 ## Code
 

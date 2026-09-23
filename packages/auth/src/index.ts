@@ -1,4 +1,3 @@
-// Components
 export { LoginView, type LoginViewProps } from "./components/LoginView";
 export {
   TermsAgreementView,
@@ -23,16 +22,13 @@ export {
   type LoginButtonProps,
 } from "./components/LoginButton";
 
-// UI
 export { Button, type ButtonProps, buttonVariants } from "./ui/button";
 export { Spinner } from "./ui/spinner";
 export { GoogleIcon } from "./ui/google-icon";
 export { MarbleAvatar } from "./ui/marble-avatar";
 
-// i18n
 export { t, type TranslationKey } from "./i18n";
 
-// Types
 export type {
   Locale,
   Theme,
@@ -41,9 +37,6 @@ export type {
   TranslationOverrides,
 } from "./types";
 
-// Utils
 export { cn } from "./lib/utils";
 
-// Terms content is a SEPARATE server-safe subpath ("@just-apps/auth/terms") so it
-// is importable from server routes too (this main entry is "use client").
-// See just-learn ADR-0008.
+// Terms exports live in the server-safe "./terms" entry, not here — docs/map/invariant/client-server-entry-split.md

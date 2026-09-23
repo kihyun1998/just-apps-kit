@@ -11,8 +11,7 @@ interface UseEntitlementReturn {
 }
 
 export function useEntitlement(appId: string): UseEntitlementReturn {
-  // Select the stored array (stable reference) and filter outside the selector:
-  // a selector returning a fresh array makes zustand v5 re-render forever.
+  // Filtering outside the selector is deliberate — docs/map/territory/entitlement-store.md
   const all = useSubscriptionStore((s) => s.entitlements);
   const entitlements = useMemo(
     () => all.filter((e) => e.appId === appId),

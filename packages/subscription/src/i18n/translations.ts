@@ -1,7 +1,6 @@
 import type { Locale } from "../types";
 
 export const dict: Record<string, Record<Locale, string>> = {
-  // Pricing
   "pricing.title": { "ko-KR": "요금제", "en-US": "Pricing" },
   "pricing.subtitle": {
     "ko-KR": "하나의 구독으로 모든 앱의 Pro 기능을 이용하세요.",
@@ -14,7 +13,6 @@ export const dict: Record<string, Record<Locale, string>> = {
   "pricing.current_plan": { "ko-KR": "현재 플랜", "en-US": "Current Plan" },
   "pricing.select": { "ko-KR": "선택하기", "en-US": "Get Started" },
 
-  // Subscription status
   "subscription.title": { "ko-KR": "구독 관리", "en-US": "Manage Subscription" },
   "subscription.active": { "ko-KR": "구독 중", "en-US": "Active" },
   "subscription.canceled": { "ko-KR": "취소됨", "en-US": "Canceled" },
@@ -38,7 +36,6 @@ export const dict: Record<string, Record<Locale, string>> = {
   },
   "subscription.start": { "ko-KR": "구독 시작하기", "en-US": "Start Subscription" },
 
-  // Upgrade modal
   "upgrade.title": { "ko-KR": "Pro로 업그레이드", "en-US": "Upgrade to Pro" },
   "upgrade.description": {
     "ko-KR": "이 기능은 Pro 플랜에서 사용할 수 있습니다.",
@@ -51,7 +48,6 @@ export const dict: Record<string, Record<Locale, string>> = {
   "upgrade.button": { "ko-KR": "업그레이드", "en-US": "Upgrade" },
   "upgrade.cancel": { "ko-KR": "닫기", "en-US": "Close" },
 
-  // Payment failed banner
   "payment_failed.title": {
     "ko-KR": "결제에 실패했습니다.",
     "en-US": "Payment failed.",
@@ -66,7 +62,6 @@ export const dict: Record<string, Record<Locale, string>> = {
     "en-US": "Manage Payment",
   },
 
-  // Trial banner
   "trial.banner": {
     "ko-KR": "Pro 체험 중 — {days}일 남음",
     "en-US": "Pro trial — {days} days left",
@@ -74,14 +69,11 @@ export const dict: Record<string, Record<Locale, string>> = {
   "trial.upgrade": { "ko-KR": "Pro로 전환", "en-US": "Upgrade to Pro" },
   "trial.start": { "ko-KR": "7일 무료 체험 시작", "en-US": "Start 7-day free trial" },
 
-  // Badge
   "badge.pro": { "ko-KR": "Pro", "en-US": "Pro" },
   "badge.free": { "ko-KR": "Free", "en-US": "Free" },
 
-  // App names
   "app.logo": { "ko-KR": "Just Make Logo", "en-US": "Just Make Logo" },
 
-  // Checkout activation
   "checkout.activating": {
     "ko-KR": "구독을 활성화하고 있습니다...",
     "en-US": "Activating your subscription...",
@@ -95,7 +87,6 @@ export const dict: Record<string, Record<Locale, string>> = {
     "en-US": "Activation is taking longer than expected. Please refresh shortly.",
   },
 
-  // Common
   "common.loading": { "ko-KR": "로딩 중...", "en-US": "Loading..." },
   "common.error": {
     "ko-KR": "구독 정보를 확인할 수 없습니다. 새로고침해 주세요.",

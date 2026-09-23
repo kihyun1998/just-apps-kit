@@ -12,7 +12,7 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 
 ## Design model
 
-- `init(supabase)` runs once per store lifetime. A failed first fetch resets `initialized` so the next `init` retries.
+- `init(supabase)` runs once per store lifetime. Only a failed `getSession` resets `initialized` so the next `init` retries; a failed table query sets `error`, leaves `initialized` true, and is retried only by an explicit `refetch`.
 - `refetch` does nothing without a session. With one, it reads both tables in parallel and relies on RLS to scope rows to the user.
 - Entitlements: rows whose `expires_at` is null or later than the browser's clock.
 - Subscription: the newest row by `created_at` whose status is one of `active`, `trialing`, `past_due`, `paused`, `canceled`.

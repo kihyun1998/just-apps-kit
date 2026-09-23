@@ -1,7 +1,6 @@
 import type { Locale, TranslationOverrides } from "../types";
 
 const dict: Record<string, Record<Locale, string>> = {
-  // Login
   "login.title": { "ko-KR": "로그인", "en-US": "Login" },
   "login.subtitle": {
     "ko-KR": "Google 계정으로 시작하세요.",
@@ -9,7 +8,6 @@ const dict: Record<string, Record<Locale, string>> = {
   },
   "login.google": { "ko-KR": "Google로 로그인", "en-US": "Sign in with Google" },
 
-  // Terms Agreement
   "terms.title": { "ko-KR": "약관 동의", "en-US": "Terms Agreement" },
   "terms.subtitle": {
     "ko-KR": "서비스 이용을 위해 약관에 동의해주세요.",
@@ -26,14 +24,12 @@ const dict: Record<string, Record<Locale, string>> = {
     "en-US": "Decline and leave",
   },
 
-  // My Page
   "mypage.title": { "ko-KR": "마이페이지", "en-US": "My Page" },
   "mypage.email": { "ko-KR": "이메일", "en-US": "Email" },
   "mypage.joined": { "ko-KR": "가입일", "en-US": "Joined" },
   "mypage.delete_account": { "ko-KR": "계정 삭제", "en-US": "Delete Account" },
   "mypage.logout": { "ko-KR": "로그아웃", "en-US": "Sign Out" },
 
-  // Account Delete
   "delete.title": { "ko-KR": "계정 삭제", "en-US": "Delete Account" },
   "delete.subtitle": {
     "ko-KR": "Just Apps 계정을 삭제하면 관련된 모든 데이터가 영구적으로 삭제됩니다.",
@@ -78,13 +74,11 @@ const dict: Record<string, Record<Locale, string>> = {
     "en-US": "Your account has been deleted.",
   },
 
-  // UserMenu
   "usermenu.admin": { "ko-KR": "관리자 페이지", "en-US": "Admin Dashboard" },
   "usermenu.admin_badge": { "ko-KR": "Admin", "en-US": "Admin" },
   "usermenu.mypage": { "ko-KR": "마이페이지", "en-US": "My Page" },
   "usermenu.logout": { "ko-KR": "로그아웃", "en-US": "Logout" },
 
-  // Common
   "common.loading": { "ko-KR": "로딩 중...", "en-US": "Loading..." },
   "common.auth_processing": {
     "ko-KR": "로그인 처리 중...",
@@ -93,7 +87,6 @@ const dict: Record<string, Record<Locale, string>> = {
   "common.login": { "ko-KR": "로그인", "en-US": "Login" },
   "common.go_home": { "ko-KR": "홈으로", "en-US": "Go Home" },
 
-  // Footer (TermsAgreementView 간이 푸터)
   "footer.copyright": {
     "ko-KR": "\u00a9 2026 Just Apps. All rights reserved.",
     "en-US": "\u00a9 2026 Just Apps. All rights reserved.",

@@ -13,7 +13,6 @@ const variants = {
   subscription: "bg-brand/15 text-brand dark:bg-brand/20 dark:text-brand",
   promo: "bg-accent text-accent-foreground",
   trial: "bg-accent text-accent-foreground",
-  // default
   default: "bg-muted text-muted-foreground",
 } as const;
 

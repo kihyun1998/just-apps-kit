@@ -6,11 +6,7 @@ import privacyPolicyEn from "./privacy_policy.en-US.md";
 import marketingKo from "./marketing.ko-KR.md";
 import marketingEn from "./marketing.en-US.md";
 
-/**
- * 가족 전체의 단일 terms 소스 (ADR: just-learn 0008). 콘텐츠·버전은 여기 한 곳에만 살고,
- * homepage·just-learn 등 모든 앱이 이걸 import한다. 마크다운은 패키지 빌드(tsup의 .md
- * text 로더)가 문자열로 인라인하므로 소비 앱의 `?raw` 지원에 의존하지 않는다.
- */
+// 가족 전체의 단일 terms 소스 — docs/map/territory/terms-content.md
 export interface TermData {
   id: string;
   type: string;

@@ -8,7 +8,7 @@ import type { Locale } from "../types";
 
 export interface CheckoutActivationProps {
   locale: Locale;
-  /** 2초 간격으로 호출되는 폴링 함수. true 반환 시 활성화 완료. */
+  /** intervalMs 간격으로 호출되는 폴링 함수. true 반환 시 활성화 완료. */
   onPoll: () => Promise<boolean>;
   /** 활성화 성공 시 호출 */
   onSuccess: () => void;
@@ -33,7 +33,7 @@ export function CheckoutActivation({
   const startRef = useRef(Date.now());
   const mountedRef = useRef(true);
 
-  // 콜백 참조 안정화 — 호출자가 useCallback을 안 써도 무한 재렌더링 방지
+  // 콜백을 ref로 읽는 것은 의도적 — docs/map/territory/checkout.md
   const onPollRef = useRef(onPoll);
   const onSuccessRef = useRef(onSuccess);
   const onTimeoutRef = useRef(onTimeout);
@@ -53,7 +53,7 @@ export function CheckoutActivation({
         return;
       }
     } catch {
-      // 폴링 실패는 무시하고 다음 시도
+      // 실패 무시는 의도적 — docs/map/territory/checkout.md
     }
 
     if (Date.now() - startRef.current >= maxWaitMs) {
