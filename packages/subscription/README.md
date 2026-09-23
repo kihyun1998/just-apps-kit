@@ -1,8 +1,14 @@
 # @just-apps/subscription
 
-Just Apps shared **subscription UI component library**. A pure presentational library that the Next.js homepage and Tauri desktop apps use to share pricing / subscription status / upgrade / trial / payment-failure banner / post-payment activation waiting screens, and so on.
+Just Apps shared **subscription package**, split into three entries so each app only pulls in what it uses:
 
-> **This package contains no subscription state management or payment logic.** The Supabase client, the `useSubscriptionStore` Zustand store, the Lemon Squeezy checkout hook, entitlement lookup hooks, and webhook handling are all implemented by the consuming app and injected via props. Swapping payment providers (Lemon Squeezy / Stripe, etc.) is also the app's concern.
+| Entry | Contents | Runs on |
+|---|---|---|
+| `@just-apps/subscription` | UI components (pricing, subscription status, upgrade, trial / payment-failure banners, post-payment activation) | client (`"use client"`) |
+| `@just-apps/subscription/core` | types + plan constants (`PLAN_ENTITLEMENTS`, `PLAN_LABELS`) | anywhere — import this from route handlers and other server code |
+| `@just-apps/subscription/store` | `useSubscriptionStore` (Zustand, over the shared `just_entitlements` / `just_subscriptions` tables), `useSubscription`, `useEntitlement`, `useAllEntitlements`, `useCheckout` (Lemon Squeezy) | client (`"use client"`) |
+
+> Webhook handling, admin grant/revoke APIs and the checkout / status endpoints stay in the app. The Supabase client is created by the app and handed to the store with `init(supabase)`.
 
 ---
 
@@ -13,15 +19,14 @@ Just Apps shared **subscription UI component library**. A pure presentational li
 - **6 React components** — `PricingView`, `SubscriptionView`, `UpgradeModal`, `TrialBanner`, `PaymentFailedBanner`, `CheckoutActivation`
 - **4 UI primitives** — `Badge` (8 variants), `Button`, `Modal`, `Spinner`
 - **Types** — `PlanId`, `SubscriptionStatus`, `EntitlementSource`, `Subscription`, `Entitlement`, `Locale`, `TranslationOverrides`
-- **Constants** — `PLAN_ENTITLEMENTS`, `PLAN_LABELS`
+- **Constants** — `PLAN_ENTITLEMENTS`, `PLAN_LABELS` (also on `/core`, which is server-safe)
+- **Data layer** (`/store`) — `useSubscriptionStore`, `useSubscription`, `useEntitlement`, `useAllEntitlements`, `useCheckout`
 - **i18n** — built-in `t()` function (supports parameter substitution) + ko-KR / en-US
 - **Utilities** — `cn`
 
 ### What's **not** included
 
-- ❌ `useSubscriptionStore` / `useSubscription` / `useEntitlement` / `useAllEntitlements` hooks (live in the app)
-- ❌ `useCheckout` hook — loads the Lemon Squeezy script + polls an API endpoint → lives in the app
-- ❌ Supabase table queries (`just_entitlements`, `just_subscriptions`)
+- ❌ Creating the Supabase client (the app passes its own to `useSubscriptionStore.getState().init(supabase)`)
 - ❌ Server-only `hasAccess()`
 - ❌ Lemon Squeezy webhook handlers
 - ❌ Admin grant/revoke APIs
@@ -29,6 +34,8 @@ Just Apps shared **subscription UI component library**. A pure presentational li
 ### Design principles
 
 Same as the auth package:
+
+The principles below apply to the UI components; the `/store` entry is the data layer that feeds them.
 
 1. **Props-only** — all data (`subscription`, `entitlements`) and handlers (`onStartSubscription`, `onUpgrade`, `onPoll`) are passed as props
 2. **Framework-agnostic** — no `next/*` imports; Tauri/Vite compatible
@@ -43,20 +50,12 @@ Same as the auth package:
 pnpm add @just-apps/subscription
 ```
 
-### Next.js
-
-```ts
-// next.config.ts
-const nextConfig: NextConfig = {
-  transpilePackages: ["@just-apps/subscription"],
-};
-```
-
 ### Peer Dependencies
 
 - `react` ^19, `react-dom` ^19
 - `lucide-react` ^1
 - `class-variance-authority`, `clsx`, `tailwind-merge`
+- `zustand` ^5, `@supabase/supabase-js` ^2 — only when using `/store` (optional peers)
 
 ### Tailwind
 
@@ -94,11 +93,11 @@ Required tokens (same as the auth package, plus the following):
 
 ## 3. Quick Start
 
-Implement the app-side data layer first (Supabase store / hooks), then inject it into the package components.
+Initialise the store once with your Supabase client (e.g. in your auth store when a session appears), then feed the hooks into the components.
 
 ```tsx
 import { PricingView } from "@just-apps/subscription";
-import { useSubscription, useCheckout } from "@/subscription"; // app hooks
+import { useSubscription, useCheckout } from "@just-apps/subscription/store";
 
 export function PricingPage() {
   const { subscription } = useSubscription();
@@ -371,6 +370,8 @@ export const PLAN_ENTITLEMENTS: Record<string, string[]> = {
 
 Represents the policy that buying Pro automatically grants the `logo` app's entitlement. Add to this array when adding a new Pro app.
 
+In server code (route handlers, webhooks), import constants from `@just-apps/subscription/core`. The main entry is a `"use client"` module, so importing values from it on the server is not safe.
+
 ### `PLAN_LABELS`
 
 Plan labels for UI display.
@@ -440,13 +441,18 @@ Same as auth:
 
 ### Next.js (this repo)
 
-**Core split of responsibilities:**
+**Wiring the store** — the app's auth store drives the subscription store's lifecycle:
 
-- `src/subscription/stores/useSubscriptionStore.ts` — Zustand store, Supabase table queries
-- `src/subscription/hooks/use-subscription.ts` — store selector
-- `src/subscription/hooks/use-entitlement.ts` — per-appId entitlement lookup
-- `src/subscription/hooks/use-checkout.ts` — loads the Lemon Squeezy script + fetches the checkout API + polls
-- `@just-apps/subscription` → **UI only**
+```ts
+import { useSubscriptionStore } from "@just-apps/subscription/store";
+
+// on sign-in / initial session
+useSubscriptionStore.getState().init(supabase);
+// on sign-out
+useSubscriptionStore.getState().clear();
+// after a purchase or admin change
+useSubscriptionStore.getState().refetch();
+```
 
 **Integration example (`src/views/MyPage.tsx`):**
 
@@ -457,7 +463,7 @@ import {
   useAllEntitlements,
   useCheckout,
   useSubscriptionStore,
-} from "@/subscription"; // app hooks
+} from "@just-apps/subscription/store";
 
 export function MyPage() {
   const { subscription, isLoading: subLoading, error: subError } = useSubscription();
@@ -484,7 +490,7 @@ export function MyPage() {
 
 ### Tauri / Vite apps
 
-The Tauri app implements its own subscription store and checkout flow. Only the UI components are reused:
+A Tauri app can use `/store` as-is when it talks to the same Supabase project, or keep its own store and reuse only the UI components:
 
 ```tsx
 // packages/just-cut/src/pages/Pricing.tsx
@@ -526,7 +532,7 @@ The `useCheckout` hook's `checkoutApiUrl` and `statusApiUrl` options point at th
 
 ## 11. DB schema assumptions
 
-Supabase tables queried by `useSubscriptionStore` (on the app side):
+Supabase tables queried by `useSubscriptionStore`:
 
 ### `just_subscriptions`
 
@@ -560,8 +566,8 @@ The RLS policy allows SELECT where `user_id = auth.uid()`. Writes go through the
 
 ## 12. FAQ
 
-**Q. Why isn't the `useCheckout` hook in the package?**
-A. It mixes a hardcoded Lemon Squeezy script URL, a dependency on the `/api/checkout` Next API endpoint, polling logic, and so on — it crosses the "pure UI" boundary. A version with only the endpoint as an option is theoretically possible, but Tauri apps are likely to use a completely different provider instead of Lemon Squeezy, so per-app implementations are currently cleaner.
+**Q. `useCheckout` is tied to Lemon Squeezy. What if an app uses another provider?**
+A. The endpoints are options (`checkoutApiUrl`, `statusApiUrl`), so any app on Lemon Squeezy can reuse it against its own backend. An app on a different provider writes its own checkout hook and still uses the store and UI.
 
 **Q. `CheckoutActivation` contains polling logic — why is it in the package?**
 A. The polling **function** is injected as the `onPoll` prop, so the package is only responsible for timer/state management. It doesn't call Supabase or a specific API directly. I drew the logic-vs-presentation line at "is the side effect injected via DI?"
@@ -570,7 +576,7 @@ A. The polling **function** is injected as the `onPoll` prop, so the package is 
 A. The current Badge is optimized for this package's internal use. If you need a general-purpose Badge, split it into a separate UI package or build your own in the app.
 
 **Q. When I add an app to PLAN_ENTITLEMENTS, where else do I need to change?**
-A. Only `packages/subscription/src/constants.ts`. However, make sure that the entitlement row for that appId is actually inserted into the DB by checking the issuance logic in `src/app/api/webhooks/lemon-squeezy/route.ts`.
+A. Only `packages/subscription/src/constants.ts` in this repo, then release and bump consumers. However, make sure that the entitlement row for that appId is actually inserted into the DB by checking the issuance logic in just-apps-homepage's `src/app/api/webhooks/lemon-squeezy/route.ts`.
 
 **Q. Does switching to Stripe require a lot of changes in this package?**
 A. Almost none. The package components only know the `Subscription` / `Entitlement` types, and the provider name is just the `subscription.provider: string` field. As long as the Stripe webhook → the same tables in the same structure, the UI side keeps working as-is.

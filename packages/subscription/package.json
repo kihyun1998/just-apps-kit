@@ -1,7 +1,7 @@
 {
   "name": "@just-apps/subscription",
   "version": "0.2.3",
-  "description": "Just Apps shared subscription UI components (pricing, subscription status, upgrade modal, trial banner, checkout activation) — framework-agnostic, props-only, Tailwind token driven.",
+  "description": "Just Apps shared subscription package: UI components (pricing, subscription status, upgrade modal, trial banner, checkout activation), a server-safe core (types + plan constants) and a client data layer (Zustand store + hooks).",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,6 +16,16 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.js"
+    },
+    "./store": {
+      "types": "./dist/store.d.ts",
+      "import": "./dist/store.mjs",
+      "require": "./dist/store.js"
     }
   },
   "files": [
@@ -27,7 +37,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "pnpm clean && tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
@@ -37,12 +48,24 @@
     "lucide-react": "^1",
     "class-variance-authority": "^0.7",
     "clsx": "^2",
-    "tailwind-merge": "^3"
+    "tailwind-merge": "^3",
+    "zustand": "^5",
+    "@supabase/supabase-js": "^2"
   },
   "devDependencies": {
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tsup": "^8",
-    "typescript": "^5"
+    "typescript": "^5",
+    "zustand": "^5.0.12",
+    "@supabase/supabase-js": "^2.100.0"
+  },
+  "peerDependenciesMeta": {
+    "zustand": {
+      "optional": true
+    },
+    "@supabase/supabase-js": {
+      "optional": true
+    }
   }
 }
