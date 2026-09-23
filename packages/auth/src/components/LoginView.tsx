@@ -8,12 +8,27 @@ import { GoogleIcon } from "../ui/google-icon";
 export interface LoginViewProps {
   locale: Locale;
   onGoogleLogin: () => void;
+  /** Sign-in failure code, e.g. `"auth_failed"`. Shown as `login.error.<code>`, or `login.error.generic` when that key has no text. */
+  error?: string;
   translations?: TranslationOverrides;
+}
+
+function errorMessage(
+  code: string,
+  locale: Locale,
+  translations?: TranslationOverrides
+): string {
+  const key = `login.error.${code}`;
+  const message = t(key, locale, translations);
+  return message === key
+    ? t("login.error.generic", locale, translations)
+    : message;
 }
 
 export function LoginView({
   locale,
   onGoogleLogin,
+  error,
   translations,
 }: LoginViewProps) {
   return (
@@ -26,8 +41,16 @@ export function LoginView({
           {t("login.subtitle", locale, translations)}
         </p>
       </div>
+      {error && (
+        <p
+          role="alert"
+          className="mt-6 rounded-lg bg-destructive/10 px-4 py-3 text-center text-sm text-destructive"
+        >
+          {errorMessage(error, locale, translations)}
+        </p>
+      )}
       <Button
-        className="mt-8 w-full gap-3"
+        className={error ? "mt-4 w-full gap-3" : "mt-8 w-full gap-3"}
         variant="outline"
         size="lg"
         onClick={onGoogleLogin}

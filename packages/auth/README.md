@@ -142,6 +142,7 @@ Google OAuth login card.
 interface LoginViewProps {
   locale: Locale;
   onGoogleLogin: () => void;
+  error?: string;
   translations?: TranslationOverrides;
 }
 ```
@@ -150,7 +151,17 @@ interface LoginViewProps {
 |---|---|
 | `locale` | Display language (`"ko-KR"` / `"en-US"`) |
 | `onGoogleLogin` | Called when the Google button is clicked. Inject the app's OAuth flow starter |
+| `error` | (optional) Sign-in failure code, e.g. `"auth_failed"`. Shows the `login.error.<code>` text above the button; a code with no text shows `login.error.generic` |
 | `translations` | (optional) App-specific translation overrides |
+
+The package does not read the URL. The app reads its own failure signal (for example `?error=auth_failed` set by its OAuth callback route) and passes the code:
+
+```tsx
+// `error`: the `?error=` value, read with the app's own router
+<LoginView locale={locale} onGoogleLogin={signInWithGoogle} error={error} />
+```
+
+Built-in codes: `auth_failed`. An app-specific code gets its text through `translations`, e.g. `{ "login.error.blocked": { "ko-KR": "…", "en-US": "…" } }`.
 
 **Example:**
 
@@ -474,7 +485,7 @@ Overridden keys apply only within that component tree (not globally).
 
 | Namespace | Keys |
 |---|---|
-| `login.*` | `title`, `subtitle`, `google` |
+| `login.*` | `title`, `subtitle`, `google`, `error.auth_failed`, `error.generic` |
 | `terms.*` | `title`, `subtitle`, `agree_all`, `required`, `optional`, `agree_suffix`, `view`, `submit`, `decline` |
 | `mypage.*` | `title`, `email`, `joined`, `delete_account`, `logout` |
 | `delete.*` | `title`, `subtitle`, `login_required`, `login`, `data_title`, `data_email`, `data_agreements`, `data_activity`, `warning`, `confirm_button`, `confirm_title`, `confirm_message`, `confirm_yes`, `confirm_cancel`, `processing`, `success` |
