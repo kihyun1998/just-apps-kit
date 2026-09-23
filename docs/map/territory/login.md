@@ -13,6 +13,8 @@ Getting a user signed in: the Google sign-in screen, the compact sign-in button 
 - The package never performs sign-in. `onGoogleLogin` / `onClick` are the app's.
 - `AuthCallbackView` only routes: no user → `"login"`, new user → `"terms"`, otherwise `"home"`. The app decides what "new user" means and passes `isNewUser`.
 - The route callback is held in a ref, so an unstable `onRoute` does not re-fire the effect.
+- `LoginView` shows a failed sign-in from an `error` **code**, never from finished copy, so the text lives in the package dictionary with the rest of the card. The code usually comes from a URL (`?error=auth_failed` set by the app's OAuth callback route), which anyone can edit; a code with no `login.error.<code>` text therefore renders `login.error.generic`, because `t()` would otherwise print the key name. The missing text is detected by `t()` returning the key itself. An app adds its own codes through `translations`.
+- The package never reads the URL for the error; the app passes it.
 
 ## Code
 
@@ -39,4 +41,4 @@ Getting a user signed in: the Google sign-in screen, the compact sign-in button 
 
 ## Known holes / open
 
-- `LoginViewProps` has no way to show a failed sign-in. Tracked: #1.
+**None.**

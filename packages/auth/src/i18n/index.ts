@@ -7,6 +7,14 @@ const dict: Record<string, Record<Locale, string>> = {
     "en-US": "Get started with your Google account.",
   },
   "login.google": { "ko-KR": "Google로 로그인", "en-US": "Sign in with Google" },
+  "login.error.auth_failed": {
+    "ko-KR": "로그인에 실패했습니다. 다시 시도해주세요.",
+    "en-US": "Sign-in failed. Please try again.",
+  },
+  "login.error.generic": {
+    "ko-KR": "로그인 중 문제가 발생했습니다. 다시 시도해주세요.",
+    "en-US": "Something went wrong while signing in. Please try again.",
+  },
 
   "terms.title": { "ko-KR": "약관 동의", "en-US": "Terms Agreement" },
   "terms.subtitle": {
