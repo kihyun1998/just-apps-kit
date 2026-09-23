@@ -400,6 +400,9 @@ t("trial.banner", "ko-KR", undefined, { days: "5" });
 
 t("subscription.available_until", "ko-KR", undefined, { date: "2026년 5월 1일" });
 // → "2026년 5월 1일까지 이용 가능"
+
+t("missing.key", "ko-KR");
+// → "missing.key" (fallback: the key itself)
 ```
 
 `{key}` tokens inside a string are substituted with `params[key]`.
