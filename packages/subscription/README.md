@@ -39,14 +39,8 @@ Same as the auth package:
 
 ## 2. Installation
 
-### pnpm workspace
-
-```json
-{
-  "dependencies": {
-    "@just-apps/subscription": "workspace:*"
-  }
-}
+```bash
+pnpm add @just-apps/subscription
 ```
 
 ### Next.js
@@ -80,13 +74,6 @@ Pick the snippet that matches how you consume the package:
 ```
 
 The `dist` output is produced by tsup and preserves `className` strings as plain literals, so Tailwind's static scanner can pick them up. Adjust the relative path so it resolves from your CSS file to your project's `node_modules`.
-
-**Tailwind v4 — pnpm workspace (this monorepo):**
-
-```css
-@import "tailwindcss";
-@source "../../packages/subscription/src/**/*.{ts,tsx}";
-```
 
 **Tailwind v3 — installed from npm:**
 
@@ -592,13 +579,13 @@ A. Almost none. The package components only know the `Subscription` / `Entitleme
 
 ## 13. Versioning / changelog
 
-Currently `0.0.0` (private workspace only).
+Published to npm from [just-apps-kit](https://github.com/kihyun1998/just-apps-kit) via [Changesets](https://github.com/changesets/changesets). Each release's notes are in `CHANGELOG.md`. While the version is `0.x`, a minor bump may be breaking and `^0.x.y` ranges do not pick it up — bump consumers explicitly.
 
 ---
 
 ## 14. Related docs
 
-- `docs/ROADMAP_PACKAGE_MIGRATION.md` — packaging roadmap
-- `docs/ROADMAP_SUBSCRIPTION.md` — subscription system design
-- `docs/SPEC_SUBSCRIPTION.md` — subscription API / schema spec
+- [`docs/ROADMAP_PACKAGE_MIGRATION.md`](https://github.com/kihyun1998/just-apps-homepage/blob/main/docs/ROADMAP_PACKAGE_MIGRATION.md) (just-apps-homepage) — packaging roadmap
+- [`docs/ROADMAP_SUBSCRIPTION.md`](https://github.com/kihyun1998/just-apps-homepage/blob/main/docs/ROADMAP_SUBSCRIPTION.md) (just-apps-homepage) — subscription system design
+- [`docs/SPEC_SUBSCRIPTION.md`](https://github.com/kihyun1998/just-apps-homepage/blob/main/docs/SPEC_SUBSCRIPTION.md) (just-apps-homepage) — subscription API / schema spec
 - `packages/auth/README.md` — authentication UI package (sibling package)

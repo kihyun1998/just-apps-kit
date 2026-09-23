@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/just-apps/just-apps-homepage.git",
+    "url": "git+https://github.com/kihyun1998/just-apps-kit.git",
     "directory": "packages/subscription"
   },
   "main": "./dist/index.js",
@@ -28,7 +28,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "react": "^19",

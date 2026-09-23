@@ -37,16 +37,8 @@ Just Apps shared **authentication UI component library**. A pure presentational 
 
 ## 2. Installation
 
-### pnpm workspace (current monorepo)
-
-Root `package.json`:
-
-```json
-{
-  "dependencies": {
-    "@just-apps/auth": "workspace:*"
-  }
-}
+```bash
+pnpm add @just-apps/auth
 ```
 
 For a Next.js app, in `next.config.ts`:
@@ -85,13 +77,6 @@ Pick the snippet that matches how you consume the package:
 
 The `dist` output is produced by tsup and preserves `className` strings as plain literals, so Tailwind's static scanner can pick them up. Adjust the relative path so it resolves from your CSS file to your project's `node_modules`.
 
-**Tailwind v4 — pnpm workspace (this monorepo):**
-
-```css
-@import "tailwindcss";
-@source "../../packages/auth/src/**/*.{ts,tsx}";
-```
-
 **Tailwind v3 — installed from npm:**
 
 ```ts
@@ -99,18 +84,6 @@ export default {
   content: [
     "./src/**/*.{ts,tsx}",
     "./node_modules/@just-apps/auth/dist/**/*.{js,mjs}",
-  ],
-  // ...
-};
-```
-
-**Tailwind v3 — pnpm workspace:**
-
-```ts
-export default {
-  content: [
-    "./src/**/*.{ts,tsx}",
-    "../../packages/auth/src/**/*.{ts,tsx}",
   ],
   // ...
 };
@@ -606,12 +579,12 @@ A. The `Locale` type is currently hardcoded to `"ko-KR" | "en-US"`. Adding a new
 
 ## 10. Versioning / changelog
 
-Currently `0.0.0` (private workspace only). External npm publishing is not yet supported. Versioning policy / changelog will be introduced later in Phase 7.
+Published to npm from [just-apps-kit](https://github.com/kihyun1998/just-apps-kit) via [Changesets](https://github.com/changesets/changesets). Each release's notes are in `CHANGELOG.md`. While the version is `0.x`, a minor bump may be breaking and `^0.x.y` ranges do not pick it up — bump consumers explicitly.
 
 ---
 
 ## 11. Related docs
 
-- `docs/ROADMAP_PACKAGE_MIGRATION.md` — packaging roadmap & design decisions
+- [`docs/ROADMAP_PACKAGE_MIGRATION.md`](https://github.com/kihyun1998/just-apps-homepage/blob/main/docs/ROADMAP_PACKAGE_MIGRATION.md) (just-apps-homepage) — packaging roadmap & design decisions
 - `packages/subscription/README.md` — subscription UI package (sibling package)
-- `README.md` (root) — overall monorepo structure
+- `README.md` (root) — repository structure and release flow
