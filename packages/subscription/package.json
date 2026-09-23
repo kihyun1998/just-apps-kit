@@ -1,6 +1,6 @@
 {
   "name": "@just-apps/subscription",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Just Apps shared subscription package: UI components (pricing, subscription status, upgrade modal, trial banner, checkout activation), a server-safe core (types + plan constants) and a client data layer (Zustand store + hooks).",
   "license": "MIT",
   "repository": {
