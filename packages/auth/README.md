@@ -493,11 +493,16 @@ Overridden keys apply only within that component tree (not globally).
 | `common.*` | `loading`, `auth_processing`, `login`, `go_home` |
 | `footer.*` | `copyright` |
 
-For type-safe keys:
+`TranslationKey` is the union of the built-in keys above, for code that should only name one of them:
 
 ```ts
 import type { TranslationKey } from "@just-apps/auth";
+
+const key: TranslationKey = "login.title";  // ok
+const typo: TranslationKey = "login.titel"; // type error
 ```
+
+`t()` itself accepts any string, since keys are also built at runtime (`login.error.<code>`) and apps add their own through overrides.
 
 ---
 

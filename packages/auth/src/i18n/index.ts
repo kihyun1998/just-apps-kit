@@ -1,6 +1,6 @@
 import type { Locale, TranslationOverrides } from "../types";
 
-const dict: Record<string, Record<Locale, string>> = {
+const dict = {
   "login.title": { "ko-KR": "로그인", "en-US": "Login" },
   "login.subtitle": {
     "ko-KR": "Google 계정으로 시작하세요.",
@@ -99,7 +99,9 @@ const dict: Record<string, Record<Locale, string>> = {
     "ko-KR": "\u00a9 2026 Just Apps. All rights reserved.",
     "en-US": "\u00a9 2026 Just Apps. All rights reserved.",
   },
-};
+} satisfies Record<string, Record<Locale, string>>;
+
+const lookup: Record<string, Record<Locale, string>> = dict;
 
 export type TranslationKey = keyof typeof dict;
 
@@ -111,5 +113,5 @@ export function t(
   if (overrides?.[key]?.[locale]) {
     return overrides[key][locale];
   }
-  return dict[key]?.[locale] ?? key;
+  return lookup[key]?.[locale] ?? key;
 }

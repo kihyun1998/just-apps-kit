@@ -417,7 +417,7 @@ t("subscription.available_until", "ko-KR", undefined, { date: "2026년 5월 1일
 | `app.*` | `app.{appId}` — per-appId label (for entitlement badges, etc.) |
 | `common.*` | Shared (error, etc.) |
 
-See `packages/subscription/src/i18n/translations.ts` for the exact key list.
+See `packages/subscription/src/i18n/translations.ts` for the exact key list. The exported `TranslationKey` type is the union of those keys; `t()` itself accepts any string, since `app.{appId}` keys are built at runtime.
 
 ### Override pattern
 
