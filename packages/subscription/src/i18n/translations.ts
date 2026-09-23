@@ -1,6 +1,6 @@
 import type { Locale } from "../types";
 
-export const dict: Record<string, Record<Locale, string>> = {
+export const dict = {
   "pricing.title": { "ko-KR": "요금제", "en-US": "Pricing" },
   "pricing.subtitle": {
     "ko-KR": "하나의 구독으로 모든 앱의 Pro 기능을 이용하세요.",
@@ -92,4 +92,4 @@ export const dict: Record<string, Record<Locale, string>> = {
     "ko-KR": "구독 정보를 확인할 수 없습니다. 새로고침해 주세요.",
     "en-US": "Unable to load subscription info. Please refresh.",
   },
-};
+} satisfies Record<string, Record<Locale, string>>;
