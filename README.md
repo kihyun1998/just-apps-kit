@@ -5,7 +5,7 @@ Shared packages for the Just Apps family.
 | Package | npm | Description |
 |---|---|---|
 | [`@just-apps/auth`](packages/auth) | [![npm](https://img.shields.io/npm/v/@just-apps/auth)](https://www.npmjs.com/package/@just-apps/auth) | Auth UI (login, terms agreement, my page, user menu, account delete) + shared terms content (`@just-apps/auth/terms`) |
-| [`@just-apps/subscription`](packages/subscription) | [![npm](https://img.shields.io/npm/v/@just-apps/subscription)](https://www.npmjs.com/package/@just-apps/subscription) | Subscription UI (pricing, status, upgrade modal, trial / payment-failed banners, checkout activation) |
+| [`@just-apps/subscription`](packages/subscription) | [![npm](https://img.shields.io/npm/v/@just-apps/subscription)](https://www.npmjs.com/package/@just-apps/subscription) | Subscription UI (pricing, status, upgrade modal, trial / payment-failed banners, checkout activation) + server-safe `/core` (types, plan constants) + client `/store` (Zustand store + hooks) |
 
 ## Development
 
