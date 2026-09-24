@@ -26,4 +26,6 @@ A user agrees in one app and is asked again in another, or the family-wide row r
 ## Where it will recur
 
 Any app that writes `agreed_terms_version` from anything other than `@just-apps/auth/terms`, and any terms revision released while apps sit on different `@just-apps/auth` minors.
+
+**Before bumping a `version` in any terms file:** no family app re-prompts on a version change yet, and the shared row cannot be re-written from a client — there is no `UPDATE` policy on `user_agreements`. A bump today records the new version only for first-time agreements. The design constraints for re-consent (role pinning, marketing-row guard, per-locale versions) are in just-apps-homepage#39 and its `docs/map/territory/terms-and-agreements.md`.
 `grep -rn "agreed_terms_version" ../*/src ../*/*/src`
