@@ -17,7 +17,7 @@ A dependency graph of what this kit does, for the two questions a change has to 
 Most facts in this kit hold in several places that never call each other, and they have been found one site at a time:
 
 - The client/server entry split was made for auth's terms content (`02b6ad2`) and then made again, separately, for subscription's constants (`d4194f1`) — [client-server-entry-split](invariant/client-server-entry-split.md).
-- The rule that terms have one version family-wide is recorded in a consumer's ADR, not here; building this map found a consumer that breaks it — [terms-version-family-wide](invariant/terms-version-family-wide.md).
+- The rule that terms have one version family-wide is recorded in a consumer's ADR, not here; building this map found a consumer that broke it (fixed in roster-ai#201) — [terms-version-family-wide](invariant/terms-version-family-wide.md).
 
 ## Measured when the map was built (2026-09-23)
 
