@@ -2,14 +2,14 @@
 title: Privacy Policy
 type: privacy_policy
 required: true
-version: 1
-effective_date: 2026-01-01
+version: 2
+effective_date: 2026-10-01
 ---
 
 ## Just Apps Privacy Policy
 
-**Effective Date: January 1, 2026**
-**Version: 1.0**
+**Effective Date: October 1, 2026**
+**Version: 2.0**
 
 Just Apps ("Company," "we," "us," or "our") is committed to protecting your personal information in accordance with the Personal Information Protection Act (PIPA) of Korea, the Act on Promotion of Information and Communications Network Utilization and Information Protection, and other applicable laws.
 
@@ -50,6 +50,8 @@ We do not share your personal information with third parties except:
 |-----------------|-----------------|
 | Google LLC | Social login (OAuth) authentication |
 | Supabase Inc. | Data storage and authentication services |
+| Link, LLC (formerly Lemon Squeezy LLC) | Payment processing and subscription management |
+| Vercel Inc. | Web service hosting |
 
 ### 6. Disposal Procedures and Methods
 1. **Procedure**: Personal information is destroyed without delay when the retention period expires or the purpose of processing is achieved.
@@ -90,6 +92,8 @@ Our Service is not intended for children under the age of 14. We do not knowingl
 |-----------|---------|-------------------|---------|-----------|
 | Google LLC | United States | Account authentication data | OAuth authentication | Until account deletion |
 | Supabase Inc. | South Korea (ap-northeast-2) | Service data | Data storage | Until account deletion |
+| Link, LLC (formerly Lemon Squeezy LLC) | United States | Email address, member identifier | Payment processing and subscription management | As required by applicable law |
+| Vercel Inc. | United States | Access logs (including IP address) | Web service hosting | Until account deletion |
 
 ### 13. Changes to This Privacy Policy
 This Privacy Policy may be updated due to changes in laws, policies, or security technologies. We will announce any changes through in-service notifications at least 7 days before they take effect.
