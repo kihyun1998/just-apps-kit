@@ -44,3 +44,4 @@ The six markdown files sit next to `index.ts`; `ls packages/auth/src/content/ter
 ## Known holes / open
 
 - No test pins the loader's fallbacks (missing `version`, unknown locale).
+- `privacy_policy` is version 2 (effective 2026-10-01) while `terms_of_service` and `marketing` stay at 1 (kit#12). The maintainer chose to bump without re-consent, so accounts that agreed before stay recorded at 1 (just-apps-homepage#39). The body's own "버전: 2.0" / "Version: 2.0" line and effective date are hand-kept copies of the frontmatter. Left out of v2 by the maintainer's call, because roster-ai plans to stop using it (roster-ai#210): Google's Gemini API, which roster-ai still sends user prompts to. Nothing in the text says any processor is app-specific.
