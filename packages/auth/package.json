@@ -1,6 +1,6 @@
 {
   "name": "@just-apps/auth",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Just Apps shared auth UI components (login, terms agreement, my page, user menu, account delete) + the shared terms content — framework-agnostic, props-only, Tailwind token driven.",
   "license": "MIT",
   "repository": {
