@@ -1,8 +1,4 @@
-export type Locale = "ko-KR" | "en-US";
-
-export type TranslationOverrides = Partial<
-  Record<string, Record<Locale, string>>
->;
+export type { Locale, TranslationOverrides } from "../../../shared/i18n";
 
 export const PLAN_IDS = ["just_apps_pro", "just_apps_ult"] as const;
 export type PlanId = (typeof PLAN_IDS)[number];

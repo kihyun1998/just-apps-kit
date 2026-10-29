@@ -6,10 +6,17 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { PaymentFailedBanner } from "./PaymentFailedBanner";
-import type { Locale, Subscription, Entitlement, SubscriptionStatus } from "../types";
+import type {
+  Locale,
+  Subscription,
+  Entitlement,
+  SubscriptionStatus,
+  TranslationOverrides,
+} from "../types";
 
 export interface SubscriptionViewProps {
   locale: Locale;
+  translations?: TranslationOverrides;
   subscription: Subscription | null;
   entitlements: Entitlement[];
   isLoading: boolean;
@@ -29,14 +36,14 @@ function formatDate(dateStr: string, locale: Locale): string {
   });
 }
 
-function appLabel(appId: string, locale: Locale): string {
-  return t(`app.${appId}`, locale) !== `app.${appId}`
-    ? t(`app.${appId}`, locale)
-    : appId;
+function appLabel(appId: string, locale: Locale, translations?: TranslationOverrides): string {
+  const label = t(`app.${appId}`, locale, translations);
+  return label !== `app.${appId}` ? label : appId;
 }
 
 export function SubscriptionView({
   locale,
+  translations,
   subscription,
   entitlements,
   isLoading,
@@ -61,7 +68,7 @@ export function SubscriptionView({
     return (
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">
-          {t("common.error", locale)}
+          {t("common.error", locale, translations)}
         </div>
       </div>
     );
@@ -69,14 +76,19 @@ export function SubscriptionView({
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 space-y-5">
-      <h3 className="text-lg font-semibold">{t("subscription.title", locale)}</h3>
+      <h3 className="text-lg font-semibold">{t("subscription.title", locale, translations)}</h3>
 
       {/* Status section */}
       {!subscription ? (
-        <NoneSection locale={locale} onStartSubscription={onStartSubscription} />
+        <NoneSection
+          locale={locale}
+          translations={translations}
+          onStartSubscription={onStartSubscription}
+        />
       ) : (
         <StatusSection
           locale={locale}
+          translations={translations}
           subscription={subscription}
           onCancelSubscription={onCancelSubscription}
           onResubscribe={onResubscribe}
@@ -89,7 +101,7 @@ export function SubscriptionView({
       {entitlements.length > 0 && (
         <div className="border-t border-border pt-4">
           <p className="text-xs text-muted-foreground mb-2">
-            {locale === "ko-KR" ? "활성 권한" : "Active Entitlements"}
+            {t("subscription.entitlements", locale, translations)}
           </p>
           <div className="flex flex-wrap gap-2">
             {entitlements.map((ent) => (
@@ -97,7 +109,7 @@ export function SubscriptionView({
                 key={`${ent.appId}-${ent.source}`}
                 className="flex items-center gap-1.5"
               >
-                <Badge variant={ent.source}>{appLabel(ent.appId, locale)}</Badge>
+                <Badge variant={ent.source}>{appLabel(ent.appId, locale, translations)}</Badge>
               </div>
             ))}
           </div>
@@ -109,6 +121,7 @@ export function SubscriptionView({
 
 interface StatusSectionProps {
   locale: Locale;
+  translations?: TranslationOverrides;
   subscription: Subscription;
   onCancelSubscription: () => void;
   onResubscribe: () => void;
@@ -118,6 +131,7 @@ interface StatusSectionProps {
 
 function StatusSection({
   locale,
+  translations,
   subscription,
   onCancelSubscription,
   onResubscribe,
@@ -130,6 +144,7 @@ function StatusSection({
       return (
         <ActiveSection
           locale={locale}
+          translations={translations}
           subscription={subscription}
           onCancelSubscription={onCancelSubscription}
           onManageBilling={onManageBilling}
@@ -139,18 +154,32 @@ function StatusSection({
       return (
         <CanceledSection
           locale={locale}
+          translations={translations}
           subscription={subscription}
           onResubscribe={onResubscribe}
         />
       );
     case "past_due":
-      return <PastDueSection locale={locale} onManageBilling={onManageBilling} />;
+      return (
+        <PastDueSection
+          locale={locale}
+          translations={translations}
+          onManageBilling={onManageBilling}
+        />
+      );
     case "paused":
-      return <PausedSection locale={locale} onResubscribe={onResubscribe} />;
+      return (
+        <PausedSection
+          locale={locale}
+          translations={translations}
+          onResubscribe={onResubscribe}
+        />
+      );
     case "trialing":
       return (
         <TrialingSection
           locale={locale}
+          translations={translations}
           subscription={subscription}
           onUpgrade={onUpgrade}
         />
@@ -166,34 +195,36 @@ function StatusSection({
 
 interface StatusHeaderProps {
   locale: Locale;
+  translations?: TranslationOverrides;
   status: Exclude<SubscriptionStatus, "expired">;
   icon?: React.ReactNode;
 }
 
-function StatusHeader({ locale, status, icon }: StatusHeaderProps) {
+function StatusHeader({ locale, translations, status, icon }: StatusHeaderProps) {
   return (
     <div className="flex items-center gap-2">
       {icon}
       <span className="text-sm font-medium">Pro</span>
-      <Badge variant={status}>{t(`subscription.${status}`, locale)}</Badge>
+      <Badge variant={status}>{t(`subscription.${status}`, locale, translations)}</Badge>
     </div>
   );
 }
 
 interface NoneSectionProps {
   locale: Locale;
+  translations?: TranslationOverrides;
   onStartSubscription: () => void;
 }
 
-function NoneSection({ locale, onStartSubscription }: NoneSectionProps) {
+function NoneSection({ locale, translations, onStartSubscription }: NoneSectionProps) {
   return (
     <div className="text-center py-4 space-y-4">
       <CreditCard className="h-8 w-8 text-muted-foreground/40 mx-auto" />
       <p className="text-sm text-muted-foreground">
-        {t("subscription.none", locale)}
+        {t("subscription.none", locale, translations)}
       </p>
       <Button onClick={onStartSubscription}>
-        {t("subscription.start", locale)}
+        {t("subscription.start", locale, translations)}
       </Button>
     </div>
   );
@@ -201,33 +232,35 @@ function NoneSection({ locale, onStartSubscription }: NoneSectionProps) {
 
 interface ActiveSectionProps {
   locale: Locale;
+  translations?: TranslationOverrides;
   subscription: Subscription;
   onCancelSubscription: () => void;
   onManageBilling: () => void;
 }
 
-function ActiveSection({ locale, subscription, onCancelSubscription, onManageBilling }: ActiveSectionProps) {
+function ActiveSection({ locale, translations, subscription, onCancelSubscription, onManageBilling }: ActiveSectionProps) {
   return (
     <div className="space-y-4">
       <StatusHeader
         locale={locale}
+        translations={translations}
         status="active"
         icon={<Zap className="h-4 w-4 text-brand" />}
       />
       {subscription.currentPeriodEnd && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Calendar className="h-3.5 w-3.5" />
-          {t("subscription.available_until", locale, undefined, {
+          {t("subscription.available_until", locale, translations, {
             date: formatDate(subscription.currentPeriodEnd, locale),
           })}
         </div>
       )}
       <div className="flex gap-2">
         <Button variant="outline" size="sm" onClick={onManageBilling}>
-          {t("subscription.manage_billing", locale)}
+          {t("subscription.manage_billing", locale, translations)}
         </Button>
         <Button variant="ghost" size="sm" onClick={onCancelSubscription} className="text-destructive hover:text-destructive">
-          {t("subscription.cancel", locale)}
+          {t("subscription.cancel", locale, translations)}
         </Button>
       </div>
     </div>
@@ -236,23 +269,24 @@ function ActiveSection({ locale, subscription, onCancelSubscription, onManageBil
 
 interface CanceledSectionProps {
   locale: Locale;
+  translations?: TranslationOverrides;
   subscription: Subscription;
   onResubscribe: () => void;
 }
 
-function CanceledSection({ locale, subscription, onResubscribe }: CanceledSectionProps) {
+function CanceledSection({ locale, translations, subscription, onResubscribe }: CanceledSectionProps) {
   return (
     <div className="space-y-4">
-      <StatusHeader locale={locale} status="canceled" />
+      <StatusHeader locale={locale} translations={translations} status="canceled" />
       {subscription.currentPeriodEnd && (
         <p className="text-sm text-muted-foreground">
-          {t("subscription.available_until", locale, undefined, {
+          {t("subscription.available_until", locale, translations, {
             date: formatDate(subscription.currentPeriodEnd, locale),
           })}
         </p>
       )}
       <Button onClick={onResubscribe}>
-        {t("subscription.resubscribe", locale)}
+        {t("subscription.resubscribe", locale, translations)}
       </Button>
     </div>
   );
@@ -260,29 +294,35 @@ function CanceledSection({ locale, subscription, onResubscribe }: CanceledSectio
 
 interface PastDueSectionProps {
   locale: Locale;
+  translations?: TranslationOverrides;
   onManageBilling: () => void;
 }
 
-function PastDueSection({ locale, onManageBilling }: PastDueSectionProps) {
+function PastDueSection({ locale, translations, onManageBilling }: PastDueSectionProps) {
   return (
     <div className="space-y-4">
-      <StatusHeader locale={locale} status="past_due" />
-      <PaymentFailedBanner locale={locale} onManageBilling={onManageBilling} />
+      <StatusHeader locale={locale} translations={translations} status="past_due" />
+      <PaymentFailedBanner
+        locale={locale}
+        translations={translations}
+        onManageBilling={onManageBilling}
+      />
     </div>
   );
 }
 
 interface PausedSectionProps {
   locale: Locale;
+  translations?: TranslationOverrides;
   onResubscribe: () => void;
 }
 
-function PausedSection({ locale, onResubscribe }: PausedSectionProps) {
+function PausedSection({ locale, translations, onResubscribe }: PausedSectionProps) {
   return (
     <div className="space-y-4">
-      <StatusHeader locale={locale} status="paused" />
+      <StatusHeader locale={locale} translations={translations} status="paused" />
       <Button onClick={onResubscribe}>
-        {t("subscription.resubscribe", locale)}
+        {t("subscription.resubscribe", locale, translations)}
       </Button>
     </div>
   );
@@ -290,11 +330,12 @@ function PausedSection({ locale, onResubscribe }: PausedSectionProps) {
 
 interface TrialingSectionProps {
   locale: Locale;
+  translations?: TranslationOverrides;
   subscription: Subscription;
   onUpgrade: () => void;
 }
 
-function TrialingSection({ locale, subscription, onUpgrade }: TrialingSectionProps) {
+function TrialingSection({ locale, translations, subscription, onUpgrade }: TrialingSectionProps) {
   const daysLeft = (() => {
     if (!subscription.trialEndsAt) return 0;
     const end = new Date(subscription.trialEndsAt);
@@ -306,16 +347,17 @@ function TrialingSection({ locale, subscription, onUpgrade }: TrialingSectionPro
     <div className="space-y-4">
       <StatusHeader
         locale={locale}
+        translations={translations}
         status="trialing"
         icon={<Sparkles className="h-4 w-4 text-brand" />}
       />
       {subscription.trialEndsAt && (
         <p className="text-sm text-muted-foreground">
-          {t("trial.banner", locale, undefined, { days: String(daysLeft) })}
+          {t("trial.banner", locale, translations, { days: String(daysLeft) })}
         </p>
       )}
       <Button onClick={onUpgrade}>
-        {t("trial.upgrade", locale)}
+        {t("trial.upgrade", locale, translations)}
       </Button>
     </div>
   );

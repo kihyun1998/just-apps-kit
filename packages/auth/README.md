@@ -466,6 +466,8 @@ t("login.title", "en-US");        // "Login"
 t("missing.key", "ko-KR");        // "missing.key" (fallback: the key itself)
 ```
 
+`t(key, locale, overrides?, params?)` is the same function in both packages, built from one shared source. Each `{name}` in the text is replaced with `params[name]`, every occurrence.
+
 ### Translation overrides
 
 When you want to change only a specific key's copy for one app:
@@ -483,7 +485,7 @@ When you want to change only a specific key's copy for one app:
 />
 ```
 
-Overridden keys apply only within that component tree (not globally).
+Overridden keys apply only within that component tree (not globally). An override is used as given, an empty string included, so an app can blank a label.
 
 ### Full list of translation keys
 

@@ -141,6 +141,7 @@ interface SubscriptionViewProps {
   onResubscribe: () => void;
   onManageBilling: () => void;
   onUpgrade: () => void;
+  translations?: TranslationOverrides;
 }
 ```
 
@@ -169,6 +170,7 @@ Payment failure notice. It's rendered automatically inside the `past_due` sectio
 interface PaymentFailedBannerProps {
   locale: Locale;
   onManageBilling: () => void;
+  translations?: TranslationOverrides;
 }
 ```
 
@@ -291,7 +293,7 @@ export const PLAN_LABELS: Record<string, { ko: string; en: string }> = {
 
 ### The `t()` function
 
-Almost identical to the auth package, but with **parameter substitution**:
+The same function as the auth package's (`t(key, locale, overrides?, params?)`, built from one shared source):
 
 ```ts
 import { t } from "@just-apps/subscription";
@@ -306,13 +308,13 @@ t("missing.key", "ko-KR");
 // → "missing.key" (fallback: the key itself)
 ```
 
-`{key}` tokens inside a string are substituted with `params[key]`.
+Each `{name}` in the text is replaced with `params[name]`, every occurrence. An override is used as given, an empty string included.
 
 ### Translation key namespaces
 
 | Namespace | Purpose |
 |---|---|
-| `subscription.*` | SubscriptionView (title, active, canceled, past_due, paused, trialing, available_until, manage_billing, cancel, resubscribe, start, none) |
+| `subscription.*` | SubscriptionView (title, active, canceled, past_due, paused, trialing, available_until, manage_billing, cancel, resubscribe, start, none, entitlements) |
 | `trial.*` | SubscriptionView's trialing section (banner, upgrade) |
 | `payment_failed.*` | PaymentFailedBanner (title, description, action) |
 | `app.*` | `app.{appId}` — per-appId label (for entitlement badges, etc.) |
@@ -322,17 +324,18 @@ See `packages/subscription/src/i18n/translations.ts` for the exact key list. The
 
 ### Override pattern
 
-Same as auth:
+Same as auth: `SubscriptionView` and `PaymentFailedBanner` take a `translations` prop, and `SubscriptionView` passes it on to the banner it renders.
 
 ```tsx
 <SubscriptionView
   locale="ko-KR"
   {...props}
-  // no translations prop — SubscriptionView currently doesn't support overrides (uses defaults)
+  translations={{
+    "subscription.title": { "ko-KR": "내 구독", "en-US": "My subscription" },
+    "app.logo": { "ko-KR": "로고 메이커", "en-US": "Logo Maker" },
+  }}
 />
 ```
-
-> ⚠️ No subscription component has a `translations` prop yet. If you need it, add the prop to the specific component (see the auth/TermsAgreementView pattern).
 
 ---
 

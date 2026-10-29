@@ -1,3 +1,4 @@
+import { translate, type Dictionary } from "../../../../shared/i18n";
 import type { Locale, TranslationOverrides } from "../types";
 
 const dict = {
@@ -100,19 +101,17 @@ const dict = {
   },
 } satisfies Record<string, Record<Locale, string>>;
 
-const lookup: Record<string, Record<Locale, string>> = dict;
+const lookup: Dictionary = dict;
 
 export type TranslationKey = keyof typeof dict;
 
 export function t(
   key: string,
   locale: Locale,
-  overrides?: TranslationOverrides
+  overrides?: TranslationOverrides,
+  params?: Record<string, string>
 ): string {
-  if (overrides?.[key]?.[locale]) {
-    return overrides[key][locale];
-  }
-  return lookup[key]?.[locale] ?? key;
+  return translate(lookup, key, locale, overrides, params);
 }
 
 /** The text for failure `code` under `prefix` (`<prefix>.<code>`), or `<prefix>.generic` when that key has no text. */
