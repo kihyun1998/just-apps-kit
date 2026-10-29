@@ -13,9 +13,8 @@ Every consumer differs in exactly the things this rules out — Next.js or Tauri
 - [login](../territory/login.md) — sign-in and callback routing are the app's.
 - [terms-agreement-ui](../territory/terms-agreement-ui.md) — persistence is `onSubmit`'s.
 - [account-screens](../territory/account-screens.md) — sign-out, delete and navigation are callbacks.
-- [pricing-ui](../territory/pricing-ui.md) — plan selection is a callback.
 - [subscription-status-ui](../territory/subscription-status-ui.md) — cancel, resubscribe, billing are callbacks.
-- [checkout](../territory/checkout.md) — `CheckoutActivation` polls an injected `onPoll`; `useCheckout` calls app-owned endpoints by URL option.
+- [checkout](../territory/checkout.md) — `useCheckout` calls app-owned endpoints by URL option.
 - [entitlement-store](../territory/entitlement-store.md) — the deliberate exception: it queries, but only through the client the app passes to `init()`.
 
 ## What a violation looks like

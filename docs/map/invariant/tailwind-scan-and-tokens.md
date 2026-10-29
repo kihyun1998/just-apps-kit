@@ -13,13 +13,11 @@ Styling is resolved in the consumer's build, not here. It holds at every compone
 - [login](../territory/login.md)
 - [terms-agreement-ui](../territory/terms-agreement-ui.md)
 - [account-screens](../territory/account-screens.md) — `UserMenu` uses `animate-in` / `fade-in-0` / `zoom-in-95` utilities.
-- [pricing-ui](../territory/pricing-ui.md)
 - [subscription-status-ui](../territory/subscription-status-ui.md)
-- [checkout](../territory/checkout.md) — `CheckoutActivation`.
-- [ui-primitives](../territory/ui-primitives.md) — `Modal` uses `animate-fade-in` / `animate-fade-in-up`.
+- [ui-primitives](../territory/ui-primitives.md) — `Badge`, `Button`, `Spinner`.
 - [build](../territory/build.md) — the literals must survive bundling.
 
-Which consumer supplies the animation utilities is per app: just-apps-homepage defines `.animate-fade-in` and `.animate-fade-in-up` in its own `src/app/globals.css` (homepage `b39adfc`, 2026-10-23).
+Which consumer supplies the animation utilities `UserMenu` uses is per app.
 
 ## What a violation looks like
 

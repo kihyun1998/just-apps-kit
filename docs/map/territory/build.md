@@ -22,7 +22,7 @@ Turning each package's source into the `dist/` that npm ships: tsup builds one b
 - `packages/auth/tsup.config.ts` — `defineConfig`, `terms`
 - `packages/subscription/tsup.config.ts` — `defineConfig`, `core`, `store`
 - `packages/auth/src/index.ts` — `LoginView`, `Button`, `cn`
-- `packages/subscription/src/index.ts` — `PricingView`, `PLAN_ENTITLEMENTS`
+- `packages/subscription/src/index.ts` — `SubscriptionView`, `PLAN_ENTITLEMENTS`
 - `packages/auth/package.json` — `exports`, `clean`
 - `packages/subscription/package.json` — `exports`, `clean`
 

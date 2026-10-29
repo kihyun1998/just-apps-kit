@@ -12,7 +12,7 @@ The small building blocks the screens are made of — button, spinner, class-nam
 
 - `Button`, `Spinner` and `cn` exist twice, once per package, identical today. The duplication is deliberate so each package installs alone (subscription README, "UI Primitives → Button").
 - `Badge` variants are keyed by subscription status *and* entitlement source; an unknown variant falls back to `default`.
-- `Modal` is hand-rolled — Escape to close, backdrop click, a Tab focus trap, body scroll lock — while `UserMenu` uses Radix. Two approaches to overlay primitives coexist.
+- `Badge` variants are two maps typed by `SubscriptionStatus` and `EntitlementSource`, so a status or source added to `types.ts` without a style fails to compile.
 - `Button` and `buttonVariants` are part of auth's public surface; subscription does not export its primitives.
 
 ## Code
@@ -23,7 +23,6 @@ The small building blocks the screens are made of — button, spinner, class-nam
 - `packages/subscription/src/ui/spinner.tsx` — `Spinner`
 - `packages/auth/src/lib/utils.ts` — `cn`
 - `packages/subscription/src/lib/utils.ts` — `cn`
-- `packages/subscription/src/ui/modal.tsx` — `Modal`
 - `packages/subscription/src/ui/badge.tsx` — `Badge`, `BadgeVariant`
 
 ## Reference behaviour
@@ -39,7 +38,7 @@ shadcn/ui is the reference, as an example rather than a spec (see `docs/agents/t
 
 ## Blast radius
 
-- Every screen territory — [login](login.md), [terms-agreement-ui](terms-agreement-ui.md), [account-screens](account-screens.md), [pricing-ui](pricing-ui.md), [subscription-status-ui](subscription-status-ui.md), [checkout](checkout.md) — renders these.
+- Every screen territory — [login](login.md), [terms-agreement-ui](terms-agreement-ui.md), [account-screens](account-screens.md), [subscription-status-ui](subscription-status-ui.md) — renders these.
 - The twin copy in the other package — a change to one `Button`, `Spinner` or `cn` is either mirrored or recorded as a deliberate divergence.
 
 ## Known holes / open
