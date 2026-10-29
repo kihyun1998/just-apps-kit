@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Locale, AuthUser, TranslationOverrides } from "../types";
-import { t } from "../i18n";
+import { errorMessage, t } from "../i18n";
 import { Button } from "../ui/button";
 import { GoogleIcon } from "../ui/google-icon";
 import { AlertTriangle, Trash2 } from "lucide-react";
@@ -13,6 +13,8 @@ export interface AccountDeleteViewProps {
   onGoogleLogin: () => void;
   onDelete: () => Promise<void>;
   onGoHome: () => void;
+  /** Deletion failure code, e.g. `"provider_cancel_failed"`. Shown as `delete.error.<code>`, or `delete.error.generic` when that key has no text. */
+  error?: string;
   translations?: TranslationOverrides;
 }
 
@@ -22,6 +24,7 @@ export function AccountDeleteView({
   onGoogleLogin,
   onDelete,
   onGoHome,
+  error,
   translations,
 }: AccountDeleteViewProps) {
   const [showConfirm, setShowConfirm] = useState(false);
@@ -99,6 +102,14 @@ export function AccountDeleteView({
 
         {user ? (
           <>
+            {error && (
+              <p
+                role="alert"
+                className="mb-4 rounded-lg bg-destructive/10 px-4 py-3 text-center text-sm text-destructive"
+              >
+                {errorMessage("delete.error", error, locale, translations)}
+              </p>
+            )}
             <p className="text-sm text-muted-foreground mb-4">{user.email}</p>
             {!showConfirm ? (
               <Button

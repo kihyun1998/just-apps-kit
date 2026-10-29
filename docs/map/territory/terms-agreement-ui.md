@@ -15,12 +15,13 @@ The screen where a signed-in user agrees to the terms before using an app: a car
 - `onSubmit` receives `Record<type, boolean>` keyed by `TermItem.type` — the app decides what to persist.
 - Submit stays disabled until every `required` term is checked.
 - `TermItem` carries no `version`. The version an app records comes from the `TermData` it loaded, not from anything this screen displayed.
-- The card resets every checkbox when the `terms` prop changes identity.
+- The card resets every checkbox when the `terms` prop changes identity. Rows render straight from `terms`; only the checked state, keyed by term `id`, is held.
+- `className` merges through `cn`, so a width class an app passes replaces the default `max-w-md`.
 - A submit error is logged to the console and swallowed; the screen shows no error.
 
 ## Code
 
-- `packages/auth/src/components/TermsAgreementCard.tsx` — `TermsAgreementCard`, `TermsAgreementCardProps`, `CheckableTerm`
+- `packages/auth/src/components/TermsAgreementCard.tsx` — `TermsAgreementCard`, `TermsAgreementCardProps`
 - `packages/auth/src/components/TermsAgreementView.tsx` — `TermsAgreementView`, `TermsAgreementViewProps`
 - `packages/auth/src/types.ts` — `TermItem`, `Theme`
 
@@ -44,4 +45,4 @@ The screen where a signed-in user agrees to the terms before using an app: a car
 ## Known holes / open
 
 - No error state for a failed submit.
-- Each row renders `title` followed by `terms.agree_suffix` (ko-KR `동의`). The ko-KR marketing title in [terms-content](terms-content.md) already ends in `동의` (`marketing.ko-KR.md` frontmatter), so that row reads `마케팅 정보 수신 동의 동의`. Which side changes is undecided. Tracked: #19
+- Each row renders `title` followed by `terms.agree_suffix` (ko-KR `동의`), so a title in [terms-content](terms-content.md) must not end in `동의` itself. The ko-KR marketing title did, and read `마케팅 정보 수신 동의 동의`; the title was changed, not the suffix (#19; maintainer, 2026-10-29). Nothing checks a new title against the suffix.

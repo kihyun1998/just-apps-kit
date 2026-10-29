@@ -11,17 +11,30 @@ import {
 
 const LISTED_STATUSES = SUBSCRIPTION_STATUSES.filter((s) => s !== "expired");
 
+export interface SubscriptionStoreOptions {
+  /** The app ids whose entitlements this app reads. Omitted, every entitlement row the user can see is read. */
+  appIds?: string[];
+}
+
 interface SubscriptionStore {
   entitlements: Entitlement[];
   subscription: Subscription | null;
   isLoading: boolean;
   error: Error | null;
   initialized: boolean;
-  _supabase: SupabaseClient | null;
 
-  init: (supabaseClient: SupabaseClient) => void;
+  init: (supabaseClient: SupabaseClient, options?: SubscriptionStoreOptions) => void;
   refetch: () => Promise<void>;
   clear: () => void;
+}
+
+let client: SupabaseClient | null = null;
+let appIds: string[] | undefined;
+
+function sameIds(a: string[] | undefined, b: string[] | undefined): boolean {
+  if (a === b) return true;
+  if (!a || !b || a.length !== b.length) return false;
+  return a.every((id, i) => id === b[i]);
 }
 
 export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
@@ -30,54 +43,48 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
   isLoading: true,
   error: null,
   initialized: false,
-  _supabase: null,
 
-  init: (supabaseClient: SupabaseClient) => {
-    if (get().initialized) return;
-    set({ initialized: true, _supabase: supabaseClient });
+  init: (supabaseClient: SupabaseClient, options?: SubscriptionStoreOptions) => {
+    const scopeChanged = !sameIds(appIds, options?.appIds);
+    if (get().initialized && client === supabaseClient && !scopeChanged) return;
 
-    (async () => {
-      try {
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
+    client = supabaseClient;
+    appIds = options?.appIds;
+    set({ initialized: true });
 
-        if (!session?.user) {
-          set({ isLoading: false });
-          return;
-        }
-
-        await get().refetch();
-      } catch (e) {
-        // Reset initialized so the next init() retries
-        set({
-          error: e instanceof Error ? e : new Error("Failed to initialize subscription"),
-          isLoading: false,
-          initialized: false,
-        });
-      }
-    })();
+    void get()
+      .refetch()
+      .then(() => {
+        // A failed load leaves init() retryable.
+        if (get().error) set({ initialized: false });
+      });
   },
 
   refetch: async () => {
-    const supabase = get()._supabase;
+    const supabase = client;
     if (!supabase) return;
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session?.user) return;
-
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.user) {
+        set({ isLoading: false });
+        return;
+      }
+
       set({ isLoading: true, error: null });
 
       const now = new Date().toISOString();
 
+      let entitlementQuery = supabase
+        .from("just_entitlements")
+        .select("app_id, source, expires_at")
+        .or(`expires_at.is.null,expires_at.gt.${now}`);
+      if (appIds) entitlementQuery = entitlementQuery.in("app_id", appIds);
+
       const [entitlementResult, subscriptionResult] = await Promise.all([
-        supabase
-          .from("just_entitlements")
-          .select("app_id, source, expires_at")
-          .or(`expires_at.is.null,expires_at.gt.${now}`),
+        entitlementQuery,
         supabase
           .from("just_subscriptions")
           .select("id, plan_id, status, provider, canceled_at, current_period_end, trial_ends_at")
@@ -125,14 +132,14 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
   },
 
   clear: () => {
-    console.log("[sub] clear");
+    client = null;
+    appIds = undefined;
     set({
       entitlements: [],
       subscription: null,
       isLoading: false,
       error: null,
       initialized: false,
-      _supabase: null,
     });
   },
 }));
