@@ -42,4 +42,5 @@ Telling a user where their subscription stands and what they can do next: the su
 ## Known holes / open
 
 - No `translations` override prop.
+- just-apps-homepage fills `entitlements` from `useAllEntitlements` (`src/views/MyPage.tsx`, homepage `b39adfc`), which returns every app's rows, so badges for sibling apps' grants appear here. Tracked: #17 (see [entitlement-store](entitlement-store.md)).
 - The "Active Entitlements" heading is an inline ternary, not a key.

@@ -6,7 +6,7 @@ A library whose *instance* matters — `react`, `react-dom`, `zustand`, `@supaba
 
 ## Why it is cross-cutting
 
-It is held by the `peerDependencies` block of each `package.json` and by what tsup leaves external, and it matters at whichever territory creates or reads shared state through that library — which are not the files that declare it.
+It is held by the `peerDependencies` block of each `package.json`, which tsup leaves external whether or not a config's `external` list names it: auth's list omits `radix-ui`, and its built `dist/index.mjs` still imports it rather than bundling it (`pnpm build`, 2026-10-29). It matters at whichever territory creates or reads shared state through that library — which are not the files that declare it.
 
 ## Territories it holds in
 

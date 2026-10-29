@@ -19,6 +19,8 @@ Styling is resolved in the consumer's build, not here. It holds at every compone
 - [ui-primitives](../territory/ui-primitives.md) — `Modal` uses `animate-fade-in` / `animate-fade-in-up`.
 - [build](../territory/build.md) — the literals must survive bundling.
 
+Which consumer supplies the animation utilities is per app: just-apps-homepage defines `.animate-fade-in` and `.animate-fade-in-up` in its own `src/app/globals.css` (homepage `b39adfc`, 2026-10-23).
+
 ## What a violation looks like
 
 The component renders but looks broken — padding, backgrounds and borders silently missing. The auth README's tell: the "Agree to all" row loses its rounded accent background and the divider under it. A class built by string interpolation (`bg-${x}`) fails the same way, and only in the consumer.

@@ -40,3 +40,4 @@ Persuading a user to subscribe: the pricing page with a free and a Pro card and 
 ## Known holes / open
 
 - No `translations` override prop.
+- No consumer renders `PricingView` or `UpgradeModal`: the only subscription consumer, just-apps-homepage, renders `SubscriptionView` alone (homepage `b39adfc`, 2026-10-23, `git grep -n 'PricingView\|UpgradeModal' -- src`).

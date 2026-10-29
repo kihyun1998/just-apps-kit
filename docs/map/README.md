@@ -10,7 +10,6 @@ A dependency graph of what this kit does, for the two questions a change has to 
 - **Before** designing a change: open the territory (or territories) it lands in. Write down, from the map alone, which territories you expect to touch.
 - **After** the change: compare what you actually touched. A territory you touched but did not predict is a missing blast edge — add it. Then ask of whatever the change revealed: *does this hold at any other site that shares the same table, entry, token or dependency?* If yes, it is an invariant note before the change lands.
 - Any change under `packages/*/src` reaches users only through [release](territory/release.md); it is not listed in every territory's blast radius because it is in all of them.
-- Run `node scripts/check-map.mjs` after editing any note.
 
 ## Why this exists
 
@@ -23,8 +22,12 @@ Most facts in this kit hold in several places that never call each other, and th
 
 - **70 public exports across 5 entries; 3 have a governing decision record** (the `terms` entry, governed by just-learn ADR-0008). This repo has no decision records of its own.
 - 8 decision records in consumer repositories mention the kit; 1 is about it.
-- No oversized file: the largest source file is 272 lines. The two package READMEs (~590 lines each) are the effective spec.
-- 1 open issue (#1). No automated tests; CI runs `build` and `typecheck` only.
+- No oversized file: the largest source file is 272 lines (still true 2026-10-29: `SubscriptionView.tsx`). The two package READMEs (~600 lines each) are the effective spec.
+- No automated tests; CI runs `build` and `typecheck` only.
+
+## The other side of the boundary
+
+The kit's contracts are completed in six consumer repositories, read at one commit each when the map was rewritten (2026-10-29): just-apps-homepage `b39adfc` (2026-10-23, the only `@just-apps/subscription` consumer), just-learn `4a50d62`, just-market `ae209bf`, roster-ai `d3d7670`, just-cut `881511d`, just-cut-print `0b49882`. A note that cites a consumer names the commit it read.
 
 ## Conventions
 
@@ -41,7 +44,7 @@ Most facts in this kit hold in several places that never call each other, and th
 
 ## Coverage
 
-Complete for this repository: every public entry and every file under `packages/*/src` belongs to at least one territory. A new territory is owed when a new public entry or a new package lands; a change inside an existing territory updates that note instead.
+Complete for this repository: every public entry and every file under `packages/*/src` belongs to at least one territory, and `.changeset/` and `.github/` belong to [release](territory/release.md). Out of scope: `docs/agents/` (agent configuration) and this folder. A new territory is owed when a new public entry or a new package lands; a change inside an existing territory updates that note instead. An idea with nothing in the repo behind it — an issue, a spec, code — gets no note.
 
 ```sh
 ls docs/map/territory docs/map/invariant                                     # what exists
@@ -56,4 +59,5 @@ Territories: [login](territory/login.md) · [terms-agreement-ui](territory/terms
 
 Invariants: [client-server-entry-split](invariant/client-server-entry-split.md) · [props-only-di](invariant/props-only-di.md) · [peer-singletons](invariant/peer-singletons.md) · [shared-tables-schema](invariant/shared-tables-schema.md) · [terms-version-family-wide](invariant/terms-version-family-wide.md) · [tailwind-scan-and-tokens](invariant/tailwind-scan-and-tokens.md)
 
-<!-- grill-map build stamp: eb0cd67 -->
+<!-- grill-map build stamp: d525035 -->
+<!-- grill-map synced at: a4ff8ca (2026-09-24) -->

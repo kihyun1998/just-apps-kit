@@ -8,15 +8,15 @@ import type { Locale } from "../types";
 
 export interface CheckoutActivationProps {
   locale: Locale;
-  /** intervalMs 간격으로 호출되는 폴링 함수. true 반환 시 활성화 완료. */
+  /** Polling function called every intervalMs. Returning true means activation is complete. */
   onPoll: () => Promise<boolean>;
-  /** 활성화 성공 시 호출 */
+  /** Called when activation succeeds. */
   onSuccess: () => void;
-  /** 타임아웃 시 호출 */
+  /** Called on timeout. */
   onTimeout: () => void;
-  /** 최대 폴링 시간(ms). 기본 30초. */
+  /** Maximum polling time in ms. Defaults to 30 s. */
   maxWaitMs?: number;
-  /** 폴링 간격(ms). 기본 2초. */
+  /** Polling interval in ms. Defaults to 2 s. */
   intervalMs?: number;
 }
 
@@ -33,7 +33,7 @@ export function CheckoutActivation({
   const startRef = useRef(Date.now());
   const mountedRef = useRef(true);
 
-  // 콜백을 ref로 읽는 것은 의도적 — docs/map/territory/checkout.md
+  // Callbacks are read through refs, deliberately — docs/map/territory/checkout.md
   const onPollRef = useRef(onPoll);
   const onSuccessRef = useRef(onSuccess);
   const onTimeoutRef = useRef(onTimeout);
@@ -53,7 +53,7 @@ export function CheckoutActivation({
         return;
       }
     } catch {
-      // 실패 무시는 의도적 — docs/map/territory/checkout.md
+      // Failures are ignored, deliberately — docs/map/territory/checkout.md
     }
 
     if (Date.now() - startRef.current >= maxWaitMs) {

@@ -44,3 +44,4 @@ The screen where a signed-in user agrees to the terms before using an app: a car
 ## Known holes / open
 
 - No error state for a failed submit.
+- Each row renders `title` followed by `terms.agree_suffix` (ko-KR `동의`). The ko-KR marketing title in [terms-content](terms-content.md) already ends in `동의` (`marketing.ko-KR.md` frontmatter), so that row reads `마케팅 정보 수신 동의 동의`. Which side changes is undecided. Tracked: #19

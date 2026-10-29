@@ -1,8 +1,8 @@
 import { defineConfig } from "tsup";
 
-// clean: false는 의도적 — docs/map/territory/build.md
+// clean: false is deliberate — docs/map/territory/build.md
 export default defineConfig([
-  // 1) UI 컴포넌트 번들.
+  // 1) UI component bundle.
   {
     entry: ["src/index.ts"],
     format: ["cjs", "esm"],
@@ -17,7 +17,7 @@ export default defineConfig([
       js: '"use client";',
     },
   },
-  // 2) core — 타입 + 상수. 배너 없음은 의도적 — docs/map/invariant/client-server-entry-split.md
+  // 2) core — types + constants. No banner, deliberately — docs/map/invariant/client-server-entry-split.md
   {
     entry: { core: "src/core.ts" },
     format: ["cjs", "esm"],
@@ -25,7 +25,7 @@ export default defineConfig([
     sourcemap: true,
     clean: false,
   },
-  // 3) store — Zustand store + hooks. external 목록은 의도적 — docs/map/invariant/peer-singletons.md
+  // 3) store — Zustand store + hooks. The external list is deliberate — docs/map/invariant/peer-singletons.md
   {
     entry: { store: "src/store.ts" },
     format: ["cjs", "esm"],
