@@ -6,14 +6,7 @@ import { t } from "../i18n";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { ShieldCheck } from "lucide-react";
-
-interface CheckableTerm {
-  id: string;
-  type: string;
-  title: string;
-  required: boolean;
-  checked: boolean;
-}
+import { cn } from "../lib/utils";
 
 export interface TermsAgreementCardProps {
   locale: Locale;
@@ -28,37 +21,35 @@ export interface TermsAgreementCardProps {
 
 export function TermsAgreementCard({
   locale,
-  terms: termItems,
+  terms,
   onSubmit,
   onCancel,
   termsViewUrl,
   translations,
   className,
 }: TermsAgreementCardProps) {
-  const [terms, setTerms] = useState<CheckableTerm[]>([]);
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    setTerms(termItems.map((item) => ({ ...item, checked: false })));
-  }, [termItems]);
+    setChecked({});
+  }, [terms]);
+
+  const isChecked = (id: string) => checked[id] === true;
 
   const allRequiredChecked =
     terms.length > 0 &&
-    terms.filter((item) => item.required).every((item) => item.checked);
+    terms.filter((item) => item.required).every((item) => isChecked(item.id));
 
-  const allChecked = terms.length > 0 && terms.every((item) => item.checked);
+  const allChecked = terms.length > 0 && terms.every((item) => isChecked(item.id));
 
   const toggleAll = () => {
     const next = !allChecked;
-    setTerms((prev) => prev.map((item) => ({ ...item, checked: next })));
+    setChecked(Object.fromEntries(terms.map((item) => [item.id, next])));
   };
 
   const toggle = (id: string) => {
-    setTerms((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, checked: !item.checked } : item
-      )
-    );
+    setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const handleSubmit = async () => {
@@ -67,7 +58,7 @@ export function TermsAgreementCard({
     try {
       const agreed: Record<string, boolean> = {};
       for (const term of terms) {
-        agreed[term.type] = term.checked;
+        agreed[term.type] = isChecked(term.id);
       }
       await onSubmit(agreed);
     } catch (e) {
@@ -77,11 +68,8 @@ export function TermsAgreementCard({
     }
   };
 
-  const baseClassName =
-    "w-full max-w-md rounded-xl border border-border bg-card p-8";
-
   return (
-    <div className={className ? `${baseClassName} ${className}` : baseClassName}>
+    <div className={cn("w-full max-w-md rounded-xl border border-border bg-card p-8", className)}>
       <div className="flex flex-col items-center text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
           <ShieldCheck className="h-6 w-6" />
@@ -115,7 +103,7 @@ export function TermsAgreementCard({
               <label className="flex cursor-pointer items-center gap-3">
                 <input
                   type="checkbox"
-                  checked={term.checked}
+                  checked={isChecked(term.id)}
                   onChange={() => toggle(term.id)}
                   className="h-4 w-4 accent-foreground"
                 />

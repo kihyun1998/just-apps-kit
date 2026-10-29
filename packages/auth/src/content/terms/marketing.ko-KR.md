@@ -1,5 +1,5 @@
 ---
-title: 마케팅 정보 수신 동의
+title: 마케팅 정보 수신
 type: marketing
 required: false
 version: 1
