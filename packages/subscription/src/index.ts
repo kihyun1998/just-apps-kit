@@ -2,6 +2,7 @@ export type {
   Locale,
   TranslationOverrides,
   PlanId,
+  BillingInterval,
   SubscriptionStatus,
   EntitlementSource,
   Subscription,
@@ -9,6 +10,7 @@ export type {
 } from "./types";
 export {
   PLAN_IDS,
+  BILLING_INTERVALS,
   SUBSCRIPTION_STATUSES,
   ENTITLEMENT_SOURCES,
   isPlanId,

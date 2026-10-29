@@ -13,7 +13,8 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 ## Design model
 
 - `PLAN_ENTITLEMENTS` maps a plan id to the app ids an active subscription entitles. An app id here needs a matching `app.<id>` label in the subscription translations, or the badge shows the raw id.
-- `PLAN_LABELS` is keyed by plan id with `ko` / `en` fields — not by `Locale`.
+- `PLAN_LABELS` is `Partial<Record<PlanId, Record<Locale, string>>>`. It is partial so a plan can sit in `PLAN_IDS` before it is sold: just-apps-homepage's admin `GrantSubscriptionModal` builds its plan list from `Object.entries(PLAN_LABELS)`, and its grant route rejects a plan with no `PLAN_ENTITLEMENTS` entry (homepage `b39adfc`), so a label without entitlements would offer a plan that cannot be granted (maintainer, 2026-10-29).
+- `BILLING_INTERVALS` (`monthly`, `yearly`) is the interval list checkout takes.
 - Both maps are typed `Record<string, …>`, not `Record<PlanId, …>`, so a missing plan is not a type error.
 - Server code reads them from `/core`: just-apps-homepage's admin grant routes, the Lemon Squeezy webhook and `src/lib/app-ids.ts`. Its admin modals, which are client components, import them from the main entry (homepage `b39adfc`, 2026-10-23). just-apps-homepage is the only consumer of `@just-apps/subscription`: `grep -l '"@just-apps/subscription"' ../*/package.json`.
 
@@ -21,7 +22,7 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 
 - `packages/subscription/src/constants.ts` — `PLAN_ENTITLEMENTS`, `PLAN_LABELS`
 - `packages/subscription/src/types.ts` — `PLAN_IDS`, `PlanId`, `isPlanId`
-- `packages/subscription/src/core.ts` — `PLAN_ENTITLEMENTS`, `PLAN_LABELS`, `PlanId`
+- `packages/subscription/src/core.ts` — `PLAN_ENTITLEMENTS`, `PLAN_LABELS`, `PlanId`, `BILLING_INTERVALS`
 
 ## Reference behaviour
 
@@ -34,11 +35,11 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 
 ## Blast radius
 
-- [subscription-status-ui](subscription-status-ui.md) — renders the literal "Pro" for every subscription, whatever its plan.
+- [subscription-status-ui](subscription-status-ui.md) — shows `PLAN_LABELS[planId]`, or the plan id when it has no label.
 - [entitlement-store](entitlement-store.md) — `isPlanId` drops any subscription whose plan is not in `PLAN_IDS`.
 - [i18n](i18n.md) — one `app.<id>` key per entitled app id.
 - [release](release.md) — the homepage's server grant route imports these values from `/core`; a change ships only when it bumps.
 
 ## Known holes / open
 
-- **Ultimate is planned, not built.** `just_apps_ult` is in `PLAN_IDS`, but it is commented out of `PLAN_LABELS` and absent from `PLAN_ENTITLEMENTS`; `PLAN_LABELS` is keyed by `string`, not `PlanId`, and checkout sends no plan id ([checkout](checkout.md)). Deferred to the Ultimate work (maintainer, 2026-10-29). A first slice starts at `constants.ts` and then follows every edge above.
+- **Ultimate is planned, not built.** `just_apps_ult` is in `PLAN_IDS` but has no `PLAN_LABELS` or `PLAN_ENTITLEMENTS` entry, and no Lemon Squeezy variant in just-apps-homepage's checkout route, which picks a Pro variant by interval alone (homepage `b39adfc`). `PLAN_ENTITLEMENTS` is still keyed by `string`. A first slice adds both entries here, then a variant per interval in the app's checkout route.

@@ -12,7 +12,7 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 
 ## Design model
 
-- App contract, from the hook's defaults: `POST checkoutApiUrl` with `{ interval }` returns `{ url }`; `GET statusApiUrl` returns `{ hasActiveSubscription }`. The plan id is not sent.
+- App contract, from the hook's defaults: `startCheckout({ planId, interval })` sends `POST checkoutApiUrl` with `{ planId, interval }` and expects `{ url }`; `GET statusApiUrl` returns `{ hasActiveSubscription }`. just-apps-homepage's checkout route reads `interval` only and picks a Pro variant from it (homepage `b39adfc`), so it accepts the new body unchanged.
 - The URL is accepted only over `https:` on a host ending in `.lemonsqueezy.com`.
 - `lemon.js` is injected once; a second caller waits for the same script tag.
 - Polling starts on the overlay's `Checkout.Success` event, or immediately when the overlay API is missing and the URL opened in a new tab instead.
@@ -23,7 +23,7 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 
 ## Code
 
-- `packages/subscription/src/hooks/use-checkout.ts` — `useCheckout`, `loadLemonScript`, `validateCheckoutUrl`, `setupLemonEventHandler`, `openCheckoutOverlay`, `ALLOWED_CHECKOUT_HOST_SUFFIX`, `MAX_CONSECUTIVE_POLL_FAILURES`
+- `packages/subscription/src/hooks/use-checkout.ts` — `useCheckout`, `StartCheckoutOptions`, `loadLemonScript`, `validateCheckoutUrl`, `setupLemonEventHandler`, `openCheckoutOverlay`, `ALLOWED_CHECKOUT_HOST_SUFFIX`, `MAX_CONSECUTIVE_POLL_FAILURES`
 
 ## Reference behaviour
 
@@ -44,4 +44,3 @@ Lemon Squeezy's Lemon.js is the binding reference (see `docs/agents/thegraph.md`
 
 - `useCheckout` reports its failures in English, not through `t()`.
 - The overlay handler listens for `Checkout.Success` only (`setupLemonEventHandler`). A user who closes the overlay without paying leaves `status` at `"overlay"` until the caller runs `reset`.
-- `startCheckout` takes only the billing interval; the plan id is never sent. A second paid plan needs it (see [plan-catalogue](plan-catalogue.md)).

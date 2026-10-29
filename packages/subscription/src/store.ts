@@ -8,4 +8,4 @@ export {
 export { useEntitlement } from "./hooks/use-entitlement";
 export { useAllEntitlements } from "./hooks/use-all-entitlements";
 export { useSubscription } from "./hooks/use-subscription";
-export { useCheckout } from "./hooks/use-checkout";
+export { useCheckout, type StartCheckoutOptions } from "./hooks/use-checkout";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import type { BillingInterval, PlanId } from "../types";
 
 type CheckoutStatus = "idle" | "loading" | "overlay" | "polling" | "success" | "timeout" | "error";
 
@@ -19,10 +20,15 @@ interface UseCheckoutOptions {
   onTimeout?: () => void;
 }
 
+export interface StartCheckoutOptions {
+  planId: PlanId;
+  interval: BillingInterval;
+}
+
 interface UseCheckoutReturn {
   status: CheckoutStatus;
   error: string | null;
-  startCheckout: (interval: "monthly" | "yearly") => Promise<void>;
+  startCheckout: (options: StartCheckoutOptions) => Promise<void>;
   reset: () => void;
 }
 
@@ -179,7 +185,7 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
     pollingRef.current = setInterval(poll, intervalMs);
   }, [statusApiUrl, maxWaitMs, intervalMs]);
 
-  const startCheckout = useCallback(async (interval: "monthly" | "yearly") => {
+  const startCheckout = useCallback(async ({ planId, interval }: StartCheckoutOptions) => {
     setStatus("loading");
     setError(null);
 
@@ -189,7 +195,7 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
       const res = await fetch(checkoutApiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ interval }),
+        body: JSON.stringify({ planId, interval }),
       });
 
       if (!res.ok) {

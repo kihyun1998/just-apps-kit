@@ -1,8 +1,4 @@
-export type Locale = "ko-KR" | "en-US";
-
-export type TranslationOverrides = Partial<
-  Record<string, Record<Locale, string>>
->;
+export type { Locale, TranslationOverrides } from "../../../shared/i18n";
 
 export const PLAN_IDS = ["just_apps_pro", "just_apps_ult"] as const;
 export type PlanId = (typeof PLAN_IDS)[number];
@@ -16,6 +12,9 @@ export const SUBSCRIPTION_STATUSES = [
   "trialing",
 ] as const;
 export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
+
+export const BILLING_INTERVALS = ["monthly", "yearly"] as const;
+export type BillingInterval = (typeof BILLING_INTERVALS)[number];
 
 export const ENTITLEMENT_SOURCES = ["subscription", "admin", "promo", "trial"] as const;
 export type EntitlementSource = (typeof ENTITLEMENT_SOURCES)[number];

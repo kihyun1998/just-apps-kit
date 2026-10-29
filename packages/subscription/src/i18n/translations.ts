@@ -22,6 +22,7 @@ export const dict = {
     "en-US": "Available until {date}",
   },
   "subscription.start": { "ko-KR": "구독 시작하기", "en-US": "Start Subscription" },
+  "subscription.entitlements": { "ko-KR": "활성 권한", "en-US": "Active Entitlements" },
 
   "payment_failed.title": {
     "ko-KR": "결제에 실패했습니다.",

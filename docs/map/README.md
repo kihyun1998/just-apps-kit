@@ -44,7 +44,7 @@ The kit's contracts are completed in six consumer repositories, read at one comm
 
 ## Coverage
 
-Complete for this repository: every public entry and every file under `packages/*/src` belongs to at least one territory, and `.changeset/` and `.github/` belong to [release](territory/release.md). Out of scope: `docs/agents/` (agent configuration) and this folder. A new territory is owed when a new public entry or a new package lands; a change inside an existing territory updates that note instead. An idea with nothing in the repo behind it — an issue, a spec, code — gets no note.
+Complete for this repository: every public entry and every file under `packages/*/src` belongs to at least one territory, `shared/` belongs to [i18n](territory/i18n.md), `scripts/` to [build](territory/build.md), and `.changeset/` and `.github/` belong to [release](territory/release.md). Out of scope: `docs/agents/` (agent configuration) and this folder. A new territory is owed when a new public entry or a new package lands; a change inside an existing territory updates that note instead. An idea with nothing in the repo behind it — an issue, a spec, code — gets no note.
 
 ```sh
 ls docs/map/territory docs/map/invariant                                     # what exists

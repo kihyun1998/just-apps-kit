@@ -5,9 +5,10 @@
   "scripts": {
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
+    "check:dist": "node scripts/check-dist.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && pnpm check:dist && changeset publish"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

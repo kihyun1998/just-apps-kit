@@ -111,11 +111,11 @@ export function SubscriptionPanel() {
       entitlements={entitlements}
       isLoading={isLoading}
       error={error}
-      onStartSubscription={() => startCheckout("monthly")}
+      onStartSubscription={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
       onCancelSubscription={() => {/* open your cancel dialog */}}
-      onResubscribe={() => startCheckout("monthly")}
+      onResubscribe={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
       onManageBilling={() => {/* open the billing portal */}}
-      onUpgrade={() => startCheckout("monthly")}
+      onUpgrade={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
     />
   );
 }
@@ -141,6 +141,7 @@ interface SubscriptionViewProps {
   onResubscribe: () => void;
   onManageBilling: () => void;
   onUpgrade: () => void;
+  translations?: TranslationOverrides;
 }
 ```
 
@@ -169,6 +170,7 @@ Payment failure notice. It's rendered automatically inside the `past_due` sectio
 interface PaymentFailedBannerProps {
   locale: Locale;
   onManageBilling: () => void;
+  translations?: TranslationOverrides;
 }
 ```
 
@@ -224,6 +226,9 @@ export const SUBSCRIPTION_STATUSES = [
 ] as const;
 export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 
+export const BILLING_INTERVALS = ["monthly", "yearly"] as const;
+export type BillingInterval = (typeof BILLING_INTERVALS)[number];
+
 export const ENTITLEMENT_SOURCES = ["subscription", "admin", "promo", "trial"] as const;
 export type EntitlementSource = (typeof ENTITLEMENT_SOURCES)[number];
 
@@ -278,12 +283,12 @@ In server code (route handlers, webhooks), import constants from `@just-apps/sub
 Plan labels for UI display.
 
 ```ts
-export const PLAN_LABELS: Record<string, { ko: string; en: string }> = {
-  just_apps_pro: { ko: "Pro", en: "Pro" },
+export const PLAN_LABELS: Partial<Record<PlanId, Record<Locale, string>>> = {
+  just_apps_pro: { "ko-KR": "Pro", "en-US": "Pro" },
 };
 ```
 
-> ⚠️ `just_apps_ult` exists in the type but is currently commented out in the constants. Enable it when the Ultimate plan launches.
+Keyed by plan id and then by `Locale`. It is `Partial` so that a plan can exist in `PLAN_IDS` before it is sold: `just_apps_ult` has no label yet, and a list built from `Object.entries(PLAN_LABELS)` does not offer it. `SubscriptionView` shows a plan's label, or its id when it has none.
 
 ---
 
@@ -291,7 +296,7 @@ export const PLAN_LABELS: Record<string, { ko: string; en: string }> = {
 
 ### The `t()` function
 
-Almost identical to the auth package, but with **parameter substitution**:
+The same function as the auth package's (`t(key, locale, overrides?, params?)`, built from one shared source):
 
 ```ts
 import { t } from "@just-apps/subscription";
@@ -306,13 +311,13 @@ t("missing.key", "ko-KR");
 // → "missing.key" (fallback: the key itself)
 ```
 
-`{key}` tokens inside a string are substituted with `params[key]`.
+Each `{name}` in the text is replaced with `params[name]`, every occurrence. An override is used as given, an empty string included.
 
 ### Translation key namespaces
 
 | Namespace | Purpose |
 |---|---|
-| `subscription.*` | SubscriptionView (title, active, canceled, past_due, paused, trialing, available_until, manage_billing, cancel, resubscribe, start, none) |
+| `subscription.*` | SubscriptionView (title, active, canceled, past_due, paused, trialing, available_until, manage_billing, cancel, resubscribe, start, none, entitlements) |
 | `trial.*` | SubscriptionView's trialing section (banner, upgrade) |
 | `payment_failed.*` | PaymentFailedBanner (title, description, action) |
 | `app.*` | `app.{appId}` — per-appId label (for entitlement badges, etc.) |
@@ -322,17 +327,18 @@ See `packages/subscription/src/i18n/translations.ts` for the exact key list. The
 
 ### Override pattern
 
-Same as auth:
+Same as auth: `SubscriptionView` and `PaymentFailedBanner` take a `translations` prop, and `SubscriptionView` passes it on to the banner it renders.
 
 ```tsx
 <SubscriptionView
   locale="ko-KR"
   {...props}
-  // no translations prop — SubscriptionView currently doesn't support overrides (uses defaults)
+  translations={{
+    "subscription.title": { "ko-KR": "내 구독", "en-US": "My subscription" },
+    "app.logo": { "ko-KR": "로고 메이커", "en-US": "Logo Maker" },
+  }}
 />
 ```
-
-> ⚠️ No subscription component has a `translations` prop yet. If you need it, add the prop to the specific component (see the auth/TermsAgreementView pattern).
 
 ---
 
@@ -379,11 +385,11 @@ export function MyPage() {
       entitlements={entitlements}
       isLoading={subLoading || entLoading}
       error={subError || entError}
-      onStartSubscription={() => startCheckout("monthly")}
+      onStartSubscription={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
       onCancelSubscription={() => setCancelDialogOpen(true)}
-      onResubscribe={() => startCheckout("monthly")}
+      onResubscribe={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
       onManageBilling={() => window.open(BILLING_PORTAL_URL, "_blank")}
-      onUpgrade={() => startCheckout("monthly")}
+      onUpgrade={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
     />
   );
 }
@@ -399,7 +405,7 @@ A Tauri app can use `/store` as-is when it talks to the same Supabase project, o
 
 This package does not provide a server API, but the homepage app is structured as below and Tauri apps can reuse the same components by implementing something similar:
 
-- `POST /api/checkout` → `{ url: string }` (Lemon Squeezy checkout URL)
+- `POST /api/checkout` with `{ planId, interval }` → `{ url: string }` (Lemon Squeezy checkout URL)
 - `GET /api/subscription/status` → `{ hasActiveSubscription: boolean }` (for polling)
 - `POST /api/subscription/cancel` → cancel subscription
 - `POST /api/webhooks/lemon-squeezy` → receive webhooks (provider → DB reflection)

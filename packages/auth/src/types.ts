@@ -1,4 +1,5 @@
-export type Locale = "ko-KR" | "en-US";
+export type { Locale, TranslationOverrides } from "../../../shared/i18n";
+import type { Locale } from "../../../shared/i18n";
 export type Theme = "light" | "dark";
 
 export interface AuthUser {
@@ -14,7 +15,3 @@ export interface TermItem {
   required: boolean;
   content?: string;
 }
-
-export type TranslationOverrides = Partial<
-  Record<string, Record<Locale, string>>
->;
