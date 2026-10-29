@@ -346,12 +346,14 @@ Same as auth:
 import { useSubscriptionStore } from "@just-apps/subscription/store";
 
 // on sign-in / initial session
-useSubscriptionStore.getState().init(supabase);
+useSubscriptionStore.getState().init(supabase, { appIds: ["logo"] });
 // on sign-out
 useSubscriptionStore.getState().clear();
 // after a purchase or admin change
 useSubscriptionStore.getState().refetch();
 ```
+
+`appIds` scopes the entitlements the store reads to this app's ids. Without it, the store reads every `just_entitlements` row the user can see, including those other family apps granted on the same Supabase project. Calling `init` again with the same client and the same `appIds` does nothing; a different client or scope reloads. A failed load leaves the store uninitialised, so the next `init` retries.
 
 **Integration example (`src/views/MyPage.tsx`):**
 
