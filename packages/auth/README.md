@@ -337,16 +337,20 @@ interface AccountDeleteViewProps {
   onGoogleLogin: () => void;
   onDelete: () => Promise<void>;
   onGoHome: () => void;
+  /** Deletion failure code. Shown as `delete.error.<code>`, or `delete.error.generic` when that key has no text. */
+  error?: string;
   translations?: TranslationOverrides;
 }
 ```
+
+`error` works like `LoginView`'s: the app passes a code, never finished copy, and adds text for its own codes through `translations` (e.g. `"delete.error.provider_cancel_failed"`). Unset, no error is shown.
 
 **State machine:**
 
 1. `user === null` → login prompt + Google login button
 2. Signed in → "Delete account" button
 3. Click → "Are you sure you want to delete?" confirmation dialog
-4. Confirm → calls `onDelete()`, shows loading state, logs errors on failure
+4. Confirm → calls `onDelete()`, shows loading state; a throw is logged and the confirmation stays open, and the app shows why by passing `error`
 5. Success → "Account deleted" + "Go home" button
 
 ---
@@ -488,7 +492,7 @@ Overridden keys apply only within that component tree (not globally).
 | `login.*` | `title`, `subtitle`, `google`, `error.auth_failed`, `error.generic` |
 | `terms.*` | `title`, `subtitle`, `agree_all`, `required`, `optional`, `agree_suffix`, `view`, `submit`, `decline` |
 | `mypage.*` | `title`, `email`, `joined`, `delete_account`, `logout` |
-| `delete.*` | `title`, `subtitle`, `login_required`, `login`, `data_title`, `data_email`, `data_agreements`, `data_activity`, `warning`, `confirm_button`, `confirm_title`, `confirm_message`, `confirm_yes`, `confirm_cancel`, `processing`, `success` |
+| `delete.*` | `title`, `subtitle`, `login_required`, `login`, `data_title`, `data_email`, `data_agreements`, `data_activity`, `warning`, `confirm_button`, `confirm_title`, `confirm_message`, `confirm_yes`, `confirm_cancel`, `processing`, `error.generic`, `success` |
 | `usermenu.*` | `admin`, `admin_badge`, `mypage`, `logout` |
 | `common.*` | `login`, `go_home` |
 | `footer.*` | `copyright` |

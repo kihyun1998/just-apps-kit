@@ -77,6 +77,10 @@ const dict = {
   "delete.confirm_yes": { "ko-KR": "삭제", "en-US": "Delete" },
   "delete.confirm_cancel": { "ko-KR": "취소", "en-US": "Cancel" },
   "delete.processing": { "ko-KR": "삭제 중...", "en-US": "Deleting..." },
+  "delete.error.generic": {
+    "ko-KR": "계정을 삭제하지 못했습니다. 다시 시도해주세요.",
+    "en-US": "We couldn't delete your account. Please try again.",
+  },
   "delete.success": {
     "ko-KR": "계정이 삭제되었습니다.",
     "en-US": "Your account has been deleted.",
@@ -109,4 +113,16 @@ export function t(
     return overrides[key][locale];
   }
   return lookup[key]?.[locale] ?? key;
+}
+
+/** The text for failure `code` under `prefix` (`<prefix>.<code>`), or `<prefix>.generic` when that key has no text. */
+export function errorMessage(
+  prefix: string,
+  code: string,
+  locale: Locale,
+  overrides?: TranslationOverrides
+): string {
+  const key = `${prefix}.${code}`;
+  const message = t(key, locale, overrides);
+  return message === key ? t(`${prefix}.generic`, locale, overrides) : message;
 }

@@ -13,12 +13,13 @@ Getting a user signed in: the Google sign-in screen, the compact sign-in button 
 - The package never performs sign-in. `onGoogleLogin` / `onClick` are the app's.
 - `AuthCallbackView` only routes: no user → `"login"`, new user → `"terms"`, otherwise `"home"`. The app decides what "new user" means and passes `isNewUser`.
 - The route callback is held in a ref, so an unstable `onRoute` does not re-fire the effect.
-- `LoginView` shows a failed sign-in from an `error` **code**, never from finished copy, so the text lives in the package dictionary with the rest of the card. The code usually comes from a URL (`?error=auth_failed` set by the app's OAuth callback route), which anyone can edit; a code with no `login.error.<code>` text therefore renders `login.error.generic`, because `t()` would otherwise print the key name. The missing text is detected by `t()` returning the key itself. An app adds its own codes through `translations`.
+- `LoginView` shows a failed sign-in from an `error` **code**, never from finished copy, so the text lives in the package dictionary with the rest of the card. The code usually comes from a URL (`?error=auth_failed` set by the app's OAuth callback route), which anyone can edit; a code with no `login.error.<code>` text therefore renders `login.error.generic`, because `t()` would otherwise print the key name. The rule is `errorMessage` in the auth i18n module, shared with `AccountDeleteView` ([account-screens](account-screens.md)); it detects missing text by `t()` returning the key itself. An app adds its own codes through `translations`.
 - The package never reads the URL for the error; the app passes it.
 
 ## Code
 
 - `packages/auth/src/components/LoginView.tsx` — `LoginView`, `LoginViewProps`
+- `packages/auth/src/i18n/index.ts` — `errorMessage`
 - `packages/auth/src/components/LoginButton.tsx` — `LoginButton`, `LoginButtonProps`
 - `packages/auth/src/components/AuthCallbackView.tsx` — `AuthCallbackView`, `AuthCallbackViewProps`
 - `packages/auth/src/ui/google-icon.tsx` — `GoogleIcon`
