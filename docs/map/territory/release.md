@@ -41,4 +41,4 @@ Getting a change from a merged PR to the apps that use it: Changesets records th
 
 ## Known holes / open
 
-- A merged changeset reaches npm only when someone merges the Version Packages PR, and the Release run after that merge publishes. `main` is at `@just-apps/auth` 0.8.0 and `@just-apps/subscription` 0.5.0 (#16, merged 2026-10-29), but npm still serves 0.7.0 and 0.4.0: that run was refused with `E404` on every `PUT`, using an `NPM_TOKEN` set 2026-09-23. Re-running Release once trusted publishing is configured publishes both, because `changeset publish` publishes any version npm lacks. Publishing through OIDC with pnpm 10 has not yet been seen to succeed here.
+- A merged changeset reaches npm only when someone merges the Version Packages PR; the Release run after that merge publishes. The first trusted-publishing run published `@just-apps/auth` 0.8.0 and `@just-apps/subscription` 0.5.0 with provenance (2026-10-29); the registry served them about two minutes after the run reported success, so check `https://registry.npmjs.org/<package>` rather than a cached `npm view` before calling a release missing.
