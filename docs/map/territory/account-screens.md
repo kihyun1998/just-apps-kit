@@ -14,6 +14,7 @@ What a signed-in user sees about their own account: the header avatar menu, the 
 - The avatar is seeded with `justapps:<email or id>`. The seed is shared by every app, so changing its format changes every user's avatar across the family.
 - `AccountDeleteView` lists what deletion removes through `delete.data_*` translation strings. Those strings are the only place this package states what is deleted.
 - A failed `onDelete` is logged and the confirm step stays open. Why it failed is shown only through `error`, a code the app passes, rendered as `delete.error.<code>` or `delete.error.generic` — the same rule as `LoginView` ([login](login.md)).
+- just-apps-homepage passes `error` codes for a failed delete (`provider_cancel_failed`, `rate_limited`, `session_expired`, else `generic`) with its own short texts through `translations` (homepage `6f85251`, 2026-10-29; homepage#84).
 
 ## Code
 
@@ -42,4 +43,4 @@ What a signed-in user sees about their own account: the header avatar menu, the 
 
 ## Known holes / open
 
-- just-apps-homepage's delete route answers with distinct failures (502 `PROVIDER_CANCEL_FAILED`, 500, 409; homepage `b39adfc`). Until it passes them as `error` codes, with text for its own codes through `translations`, the view shows nothing (#18).
+**None.**
