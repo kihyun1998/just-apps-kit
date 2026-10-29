@@ -1,18 +1,15 @@
 import { create } from "zustand";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type {
-  Subscription,
-  Entitlement,
-  SubscriptionStatus,
-  EntitlementSource,
-  PlanId,
+import {
+  SUBSCRIPTION_STATUSES,
+  isEntitlementSource,
+  isPlanId,
+  isSubscriptionStatus,
+  type Subscription,
+  type Entitlement,
 } from "../types";
 
-const VALID_SOURCES: EntitlementSource[] = ["subscription", "admin", "promo", "trial"];
-const VALID_STATUSES: SubscriptionStatus[] = [
-  "active", "past_due", "canceled", "expired", "paused", "trialing",
-];
-const VALID_PLANS: PlanId[] = ["just_apps_pro", "just_apps_ult"];
+const LISTED_STATUSES = SUBSCRIPTION_STATUSES.filter((s) => s !== "expired");
 
 interface SubscriptionStore {
   entitlements: Entitlement[];
@@ -84,7 +81,7 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
         supabase
           .from("just_subscriptions")
           .select("id, plan_id, status, provider, canceled_at, current_period_end, trial_ends_at")
-          .in("status", ["active", "trialing", "past_due", "paused", "canceled"])
+          .in("status", LISTED_STATUSES)
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
@@ -93,25 +90,23 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
       if (entitlementResult.error) throw entitlementResult.error;
       if (subscriptionResult.error) throw subscriptionResult.error;
 
-      const entitlements: Entitlement[] = (entitlementResult.data ?? [])
-        .filter((row: { source: string }) =>
-          VALID_SOURCES.includes(row.source as EntitlementSource)
-        )
-        .map((row: { app_id: string; source: string; expires_at: string | null }) => ({
-          appId: row.app_id,
-          source: row.source as EntitlementSource,
-          expiresAt: row.expires_at,
-        }));
+      const entitlements: Entitlement[] = [];
+      for (const row of (entitlementResult.data ?? []) as {
+        app_id: string;
+        source: string;
+        expires_at: string | null;
+      }[]) {
+        if (!isEntitlementSource(row.source)) continue;
+        entitlements.push({ appId: row.app_id, source: row.source, expiresAt: row.expires_at });
+      }
 
       const sub = subscriptionResult.data;
       const subscription: Subscription | null =
-        sub &&
-        VALID_STATUSES.includes(sub.status as SubscriptionStatus) &&
-        VALID_PLANS.includes(sub.plan_id as PlanId)
+        sub && isSubscriptionStatus(sub.status) && isPlanId(sub.plan_id)
           ? {
               id: sub.id as string,
-              planId: sub.plan_id as PlanId,
-              status: sub.status as SubscriptionStatus,
+              planId: sub.plan_id,
+              status: sub.status,
               provider: sub.provider as string,
               canceledAt: sub.canceled_at as string | null,
               currentPeriodEnd: sub.current_period_end as string | null,

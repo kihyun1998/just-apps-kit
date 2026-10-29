@@ -2,11 +2,11 @@
 
 import { CreditCard, Calendar, Sparkles, Zap } from "lucide-react";
 import { t } from "../i18n";
-import { Badge, type BadgeVariant } from "../ui/badge";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { PaymentFailedBanner } from "./PaymentFailedBanner";
-import type { Locale, Subscription, Entitlement, EntitlementSource } from "../types";
+import type { Locale, Subscription, Entitlement, SubscriptionStatus } from "../types";
 
 export interface SubscriptionViewProps {
   locale: Locale;
@@ -74,30 +74,16 @@ export function SubscriptionView({
       {/* Status section */}
       {!subscription ? (
         <NoneSection locale={locale} onStartSubscription={onStartSubscription} />
-      ) : subscription.status === "active" ? (
-        <ActiveSection
+      ) : (
+        <StatusSection
           locale={locale}
           subscription={subscription}
           onCancelSubscription={onCancelSubscription}
-          onManageBilling={onManageBilling}
-        />
-      ) : subscription.status === "canceled" ? (
-        <CanceledSection
-          locale={locale}
-          subscription={subscription}
           onResubscribe={onResubscribe}
-        />
-      ) : subscription.status === "past_due" ? (
-        <PastDueSection locale={locale} onManageBilling={onManageBilling} />
-      ) : subscription.status === "paused" ? (
-        <PausedSection locale={locale} onResubscribe={onResubscribe} />
-      ) : subscription.status === "trialing" ? (
-        <TrialingSection
-          locale={locale}
-          subscription={subscription}
+          onManageBilling={onManageBilling}
           onUpgrade={onUpgrade}
         />
-      ) : null}
+      )}
 
       {/* Entitlements section */}
       {entitlements.length > 0 && (
@@ -111,12 +97,85 @@ export function SubscriptionView({
                 key={`${ent.appId}-${ent.source}`}
                 className="flex items-center gap-1.5"
               >
-                <Badge variant={ent.source as BadgeVariant}>{appLabel(ent.appId, locale)}</Badge>
+                <Badge variant={ent.source}>{appLabel(ent.appId, locale)}</Badge>
               </div>
             ))}
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+interface StatusSectionProps {
+  locale: Locale;
+  subscription: Subscription;
+  onCancelSubscription: () => void;
+  onResubscribe: () => void;
+  onManageBilling: () => void;
+  onUpgrade: () => void;
+}
+
+function StatusSection({
+  locale,
+  subscription,
+  onCancelSubscription,
+  onResubscribe,
+  onManageBilling,
+  onUpgrade,
+}: StatusSectionProps) {
+  const status = subscription.status;
+  switch (status) {
+    case "active":
+      return (
+        <ActiveSection
+          locale={locale}
+          subscription={subscription}
+          onCancelSubscription={onCancelSubscription}
+          onManageBilling={onManageBilling}
+        />
+      );
+    case "canceled":
+      return (
+        <CanceledSection
+          locale={locale}
+          subscription={subscription}
+          onResubscribe={onResubscribe}
+        />
+      );
+    case "past_due":
+      return <PastDueSection locale={locale} onManageBilling={onManageBilling} />;
+    case "paused":
+      return <PausedSection locale={locale} onResubscribe={onResubscribe} />;
+    case "trialing":
+      return (
+        <TrialingSection
+          locale={locale}
+          subscription={subscription}
+          onUpgrade={onUpgrade}
+        />
+      );
+    case "expired":
+      return null;
+    default: {
+      const unhandled: never = status;
+      return unhandled;
+    }
+  }
+}
+
+interface StatusHeaderProps {
+  locale: Locale;
+  status: Exclude<SubscriptionStatus, "expired">;
+  icon?: React.ReactNode;
+}
+
+function StatusHeader({ locale, status, icon }: StatusHeaderProps) {
+  return (
+    <div className="flex items-center gap-2">
+      {icon}
+      <span className="text-sm font-medium">Pro</span>
+      <Badge variant={status}>{t(`subscription.${status}`, locale)}</Badge>
     </div>
   );
 }
@@ -150,11 +209,11 @@ interface ActiveSectionProps {
 function ActiveSection({ locale, subscription, onCancelSubscription, onManageBilling }: ActiveSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Zap className="h-4 w-4 text-brand" />
-        <span className="text-sm font-medium">Pro</span>
-        <Badge variant="active">{t("subscription.active", locale)}</Badge>
-      </div>
+      <StatusHeader
+        locale={locale}
+        status="active"
+        icon={<Zap className="h-4 w-4 text-brand" />}
+      />
       {subscription.currentPeriodEnd && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Calendar className="h-3.5 w-3.5" />
@@ -184,10 +243,7 @@ interface CanceledSectionProps {
 function CanceledSection({ locale, subscription, onResubscribe }: CanceledSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Pro</span>
-        <Badge variant="canceled">{t("subscription.canceled", locale)}</Badge>
-      </div>
+      <StatusHeader locale={locale} status="canceled" />
       {subscription.currentPeriodEnd && (
         <p className="text-sm text-muted-foreground">
           {t("subscription.available_until", locale, undefined, {
@@ -210,10 +266,7 @@ interface PastDueSectionProps {
 function PastDueSection({ locale, onManageBilling }: PastDueSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Pro</span>
-        <Badge variant="past_due">{t("subscription.past_due", locale)}</Badge>
-      </div>
+      <StatusHeader locale={locale} status="past_due" />
       <PaymentFailedBanner locale={locale} onManageBilling={onManageBilling} />
     </div>
   );
@@ -227,10 +280,7 @@ interface PausedSectionProps {
 function PausedSection({ locale, onResubscribe }: PausedSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Pro</span>
-        <Badge variant="paused">{t("subscription.paused", locale)}</Badge>
-      </div>
+      <StatusHeader locale={locale} status="paused" />
       <Button onClick={onResubscribe}>
         {t("subscription.resubscribe", locale)}
       </Button>
@@ -254,11 +304,11 @@ function TrialingSection({ locale, subscription, onUpgrade }: TrialingSectionPro
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-brand" />
-        <span className="text-sm font-medium">Pro</span>
-        <Badge variant="trialing">{t("subscription.trialing", locale)}</Badge>
-      </div>
+      <StatusHeader
+        locale={locale}
+        status="trialing"
+        icon={<Sparkles className="h-4 w-4 text-brand" />}
+      />
       {subscription.trialEndsAt && (
         <p className="text-sm text-muted-foreground">
           {t("trial.banner", locale, undefined, { days: String(daysLeft) })}

@@ -87,11 +87,6 @@ const dict = {
   "usermenu.mypage": { "ko-KR": "마이페이지", "en-US": "My Page" },
   "usermenu.logout": { "ko-KR": "로그아웃", "en-US": "Logout" },
 
-  "common.loading": { "ko-KR": "로딩 중...", "en-US": "Loading..." },
-  "common.auth_processing": {
-    "ko-KR": "로그인 처리 중...",
-    "en-US": "Processing login...",
-  },
   "common.login": { "ko-KR": "로그인", "en-US": "Login" },
   "common.go_home": { "ko-KR": "홈으로", "en-US": "Go Home" },
 

@@ -1,22 +1,29 @@
 import { cn } from "../lib/utils";
+import type { EntitlementSource, SubscriptionStatus } from "../types";
 
-const variants = {
-  // subscription status
+const statusVariants: Record<SubscriptionStatus, string> = {
   active: "bg-brand/15 text-brand dark:bg-brand/20 dark:text-brand",
   trialing: "bg-accent text-accent-foreground",
   canceled: "bg-muted text-muted-foreground",
   expired: "bg-muted text-muted-foreground opacity-60",
   past_due: "bg-destructive/15 text-destructive dark:bg-destructive/20",
   paused: "bg-secondary text-secondary-foreground",
-  // entitlement source
+};
+
+const sourceVariants: Record<EntitlementSource, string> = {
   admin: "bg-brand/15 text-brand dark:bg-brand/20 dark:text-brand",
   subscription: "bg-brand/15 text-brand dark:bg-brand/20 dark:text-brand",
   promo: "bg-accent text-accent-foreground",
   trial: "bg-accent text-accent-foreground",
-  default: "bg-muted text-muted-foreground",
-} as const;
+};
 
-export type BadgeVariant = keyof typeof variants;
+const variants: Record<string, string> = {
+  ...statusVariants,
+  ...sourceVariants,
+  default: "bg-muted text-muted-foreground",
+};
+
+export type BadgeVariant = SubscriptionStatus | EntitlementSource | "default";
 
 interface BadgeProps {
   variant?: BadgeVariant;
