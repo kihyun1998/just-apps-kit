@@ -13,7 +13,7 @@ const LISTED_STATUSES = SUBSCRIPTION_STATUSES.filter((s) => s !== "expired");
 
 export interface SubscriptionStoreOptions {
   /** The app ids whose entitlements this app reads. Omitted, every entitlement row the user can see is read. */
-  appIds?: string[];
+  appIds?: readonly string[];
 }
 
 interface SubscriptionStore {
@@ -29,9 +29,9 @@ interface SubscriptionStore {
 }
 
 let client: SupabaseClient | null = null;
-let appIds: string[] | undefined;
+let appIds: readonly string[] | undefined;
 
-function sameIds(a: string[] | undefined, b: string[] | undefined): boolean {
+function sameIds(a: readonly string[] | undefined, b: readonly string[] | undefined): boolean {
   if (a === b) return true;
   if (!a || !b || a.length !== b.length) return false;
   return a.every((id, i) => id === b[i]);
