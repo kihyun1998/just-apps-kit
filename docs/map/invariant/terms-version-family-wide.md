@@ -23,7 +23,7 @@ A user agrees in one app and is asked again in another, or the family-wide row r
 - [just-learn ADR-0008](https://github.com/kihyun1998/just-learn/blob/main/docs/adr/0008-terms-content-shared-in-auth-package.md) — per-app copies rejected because their versions drift into the shared table.
 - 2026-09-23, while building this map: roster-ai keeps its own `src/content/terms` and writes `agreed_terms_version` from it, on an `@just-apps/auth` range below the one that ships terms content. Resolved 2026-09-24 in roster-ai#201: roster-ai is on `^0.7.0` and reads its ko-KR `terms_of_service` and `privacy_policy` from `@just-apps/auth/terms`.
 
-- 2026-10-29: privacy policy version 2 is in source but not on npm (see [terms-content](../territory/terms-content.md)), so every app still records `agreed_privacy_version: 1`.
+- 2026-10-29: privacy policy version 2 shipped in `@just-apps/auth` 0.8.0. Apps on 0.7.0 or older still show and record version 1, so the family records both versions until every app bumps (see [terms-content](../territory/terms-content.md)).
 
 ## Where it will recur
 
