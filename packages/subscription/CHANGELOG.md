@@ -1,5 +1,11 @@
 # @just-apps/subscription
 
+## 0.5.1
+
+### Patch Changes
+
+- 6b5f698: `init(supabase, { appIds })` accepts a `readonly string[]`, so an app can pass a frozen or `as const` list of its ids without copying it. The store never mutates the list.
+
 ## 0.5.0
 
 ### Minor Changes
