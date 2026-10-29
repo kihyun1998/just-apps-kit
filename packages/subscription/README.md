@@ -111,11 +111,11 @@ export function SubscriptionPanel() {
       entitlements={entitlements}
       isLoading={isLoading}
       error={error}
-      onStartSubscription={() => startCheckout("monthly")}
+      onStartSubscription={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
       onCancelSubscription={() => {/* open your cancel dialog */}}
-      onResubscribe={() => startCheckout("monthly")}
+      onResubscribe={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
       onManageBilling={() => {/* open the billing portal */}}
-      onUpgrade={() => startCheckout("monthly")}
+      onUpgrade={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
     />
   );
 }
@@ -226,6 +226,9 @@ export const SUBSCRIPTION_STATUSES = [
 ] as const;
 export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 
+export const BILLING_INTERVALS = ["monthly", "yearly"] as const;
+export type BillingInterval = (typeof BILLING_INTERVALS)[number];
+
 export const ENTITLEMENT_SOURCES = ["subscription", "admin", "promo", "trial"] as const;
 export type EntitlementSource = (typeof ENTITLEMENT_SOURCES)[number];
 
@@ -280,12 +283,12 @@ In server code (route handlers, webhooks), import constants from `@just-apps/sub
 Plan labels for UI display.
 
 ```ts
-export const PLAN_LABELS: Record<string, { ko: string; en: string }> = {
-  just_apps_pro: { ko: "Pro", en: "Pro" },
+export const PLAN_LABELS: Partial<Record<PlanId, Record<Locale, string>>> = {
+  just_apps_pro: { "ko-KR": "Pro", "en-US": "Pro" },
 };
 ```
 
-> ⚠️ `just_apps_ult` exists in the type but is currently commented out in the constants. Enable it when the Ultimate plan launches.
+Keyed by plan id and then by `Locale`. It is `Partial` so that a plan can exist in `PLAN_IDS` before it is sold: `just_apps_ult` has no label yet, and a list built from `Object.entries(PLAN_LABELS)` does not offer it. `SubscriptionView` shows a plan's label, or its id when it has none.
 
 ---
 
@@ -382,11 +385,11 @@ export function MyPage() {
       entitlements={entitlements}
       isLoading={subLoading || entLoading}
       error={subError || entError}
-      onStartSubscription={() => startCheckout("monthly")}
+      onStartSubscription={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
       onCancelSubscription={() => setCancelDialogOpen(true)}
-      onResubscribe={() => startCheckout("monthly")}
+      onResubscribe={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
       onManageBilling={() => window.open(BILLING_PORTAL_URL, "_blank")}
-      onUpgrade={() => startCheckout("monthly")}
+      onUpgrade={() => startCheckout({ planId: "just_apps_pro", interval: "monthly" })}
     />
   );
 }
@@ -402,7 +405,7 @@ A Tauri app can use `/store` as-is when it talks to the same Supabase project, o
 
 This package does not provide a server API, but the homepage app is structured as below and Tauri apps can reuse the same components by implementing something similar:
 
-- `POST /api/checkout` → `{ url: string }` (Lemon Squeezy checkout URL)
+- `POST /api/checkout` with `{ planId, interval }` → `{ url: string }` (Lemon Squeezy checkout URL)
 - `GET /api/subscription/status` → `{ hasActiveSubscription: boolean }` (for polling)
 - `POST /api/subscription/cancel` → cancel subscription
 - `POST /api/webhooks/lemon-squeezy` → receive webhooks (provider → DB reflection)

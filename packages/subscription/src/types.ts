@@ -13,6 +13,9 @@ export const SUBSCRIPTION_STATUSES = [
 ] as const;
 export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 
+export const BILLING_INTERVALS = ["monthly", "yearly"] as const;
+export type BillingInterval = (typeof BILLING_INTERVALS)[number];
+
 export const ENTITLEMENT_SOURCES = ["subscription", "admin", "promo", "trial"] as const;
 export type EntitlementSource = (typeof ENTITLEMENT_SOURCES)[number];
 

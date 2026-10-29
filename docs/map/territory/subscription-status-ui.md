@@ -11,7 +11,7 @@ Telling a user where their subscription stands and what they can do next: the su
 ## Design model
 
 - `StatusSection` switches on `subscription.status` over every `SubscriptionStatus`; the `never` default makes an unhandled status a compile error. `expired` renders no status section; the store never returns it.
-- Every status section opens with `StatusHeader`, which shows the literal "Pro" whatever `planId` is, and the status's `subscription.<status>` badge.
+- Every status section opens with `StatusHeader`, which shows `PLAN_LABELS[planId][locale]`, or the plan id when the plan has no label, and the status's `subscription.<status>` badge.
 - Each entitlement renders as a `Badge` whose variant is the entitlement's `source`, and whose label is `app.<appId>` if that key exists, else the raw id.
 - Trial days left are computed from `trialEndsAt` against the browser clock.
 - Loading and error states replace the whole panel.
@@ -35,7 +35,7 @@ Telling a user where their subscription stands and what they can do next: the su
 
 - [entitlement-store](entitlement-store.md) — the shapes rendered here are what the store produces; its status filter decides which branches are reachable.
 - [ui-primitives](ui-primitives.md) — `Badge` variant keys must cover every status and source rendered.
-- [plan-catalogue](plan-catalogue.md) — plan identity ("Pro") and the `app.<id>` labels.
+- [plan-catalogue](plan-catalogue.md) — plan labels and the `app.<id>` labels.
 - [i18n](i18n.md) — `subscription.*`, `trial.*`, `payment_failed.*`, `app.*`; uses `{param}` substitution.
 
 ## Known holes / open

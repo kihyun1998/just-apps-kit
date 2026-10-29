@@ -1,6 +1,7 @@
 "use client";
 
 import { CreditCard, Calendar, Sparkles, Zap } from "lucide-react";
+import { PLAN_LABELS } from "../constants";
 import { t } from "../i18n";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -10,6 +11,7 @@ import type {
   Locale,
   Subscription,
   Entitlement,
+  PlanId,
   SubscriptionStatus,
   TranslationOverrides,
 } from "../types";
@@ -164,6 +166,7 @@ function StatusSection({
         <PastDueSection
           locale={locale}
           translations={translations}
+          planId={subscription.planId}
           onManageBilling={onManageBilling}
         />
       );
@@ -172,6 +175,7 @@ function StatusSection({
         <PausedSection
           locale={locale}
           translations={translations}
+          planId={subscription.planId}
           onResubscribe={onResubscribe}
         />
       );
@@ -196,15 +200,16 @@ function StatusSection({
 interface StatusHeaderProps {
   locale: Locale;
   translations?: TranslationOverrides;
+  planId: PlanId;
   status: Exclude<SubscriptionStatus, "expired">;
   icon?: React.ReactNode;
 }
 
-function StatusHeader({ locale, translations, status, icon }: StatusHeaderProps) {
+function StatusHeader({ locale, translations, planId, status, icon }: StatusHeaderProps) {
   return (
     <div className="flex items-center gap-2">
       {icon}
-      <span className="text-sm font-medium">Pro</span>
+      <span className="text-sm font-medium">{PLAN_LABELS[planId]?.[locale] ?? planId}</span>
       <Badge variant={status}>{t(`subscription.${status}`, locale, translations)}</Badge>
     </div>
   );
@@ -244,6 +249,7 @@ function ActiveSection({ locale, translations, subscription, onCancelSubscriptio
       <StatusHeader
         locale={locale}
         translations={translations}
+        planId={subscription.planId}
         status="active"
         icon={<Zap className="h-4 w-4 text-brand" />}
       />
@@ -277,7 +283,7 @@ interface CanceledSectionProps {
 function CanceledSection({ locale, translations, subscription, onResubscribe }: CanceledSectionProps) {
   return (
     <div className="space-y-4">
-      <StatusHeader locale={locale} translations={translations} status="canceled" />
+      <StatusHeader locale={locale} translations={translations} planId={subscription.planId} status="canceled" />
       {subscription.currentPeriodEnd && (
         <p className="text-sm text-muted-foreground">
           {t("subscription.available_until", locale, translations, {
@@ -295,13 +301,14 @@ function CanceledSection({ locale, translations, subscription, onResubscribe }: 
 interface PastDueSectionProps {
   locale: Locale;
   translations?: TranslationOverrides;
+  planId: PlanId;
   onManageBilling: () => void;
 }
 
-function PastDueSection({ locale, translations, onManageBilling }: PastDueSectionProps) {
+function PastDueSection({ locale, translations, planId, onManageBilling }: PastDueSectionProps) {
   return (
     <div className="space-y-4">
-      <StatusHeader locale={locale} translations={translations} status="past_due" />
+      <StatusHeader locale={locale} translations={translations} planId={planId} status="past_due" />
       <PaymentFailedBanner
         locale={locale}
         translations={translations}
@@ -314,13 +321,14 @@ function PastDueSection({ locale, translations, onManageBilling }: PastDueSectio
 interface PausedSectionProps {
   locale: Locale;
   translations?: TranslationOverrides;
+  planId: PlanId;
   onResubscribe: () => void;
 }
 
-function PausedSection({ locale, translations, onResubscribe }: PausedSectionProps) {
+function PausedSection({ locale, translations, planId, onResubscribe }: PausedSectionProps) {
   return (
     <div className="space-y-4">
-      <StatusHeader locale={locale} translations={translations} status="paused" />
+      <StatusHeader locale={locale} translations={translations} planId={planId} status="paused" />
       <Button onClick={onResubscribe}>
         {t("subscription.resubscribe", locale, translations)}
       </Button>
@@ -348,6 +356,7 @@ function TrialingSection({ locale, translations, subscription, onUpgrade }: Tria
       <StatusHeader
         locale={locale}
         translations={translations}
+        planId={subscription.planId}
         status="trialing"
         icon={<Sparkles className="h-4 w-4 text-brand" />}
       />
