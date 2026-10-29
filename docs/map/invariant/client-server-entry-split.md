@@ -6,7 +6,7 @@ An entry that holds React UI or hooks is built with the `"use client"` banner: a
 
 ## Why it is cross-cutting
 
-It is held jointly by three things that never call each other: the tsup config for each entry (the banner), the package `exports` map (which paths exist), and the source module graph behind each server-safe entry (`core.ts` and `content/terms/index.ts` import only types, constants and markdown). Breaking any one of them breaks the contract, and each lives in a different territory.
+It is held jointly by three things that never call each other: the tsup config for each entry (the banner), the package `exports` map (which paths exist), and the source module graph behind each server-safe entry (`core.ts` and `content/terms/index.ts` import only types, constants and markdown). Breaking any one of them breaks the contract, and each lives in a different territory. The server side of the contract is in the consumers: just-apps-homepage's route handlers import `/core` (admin grant routes, the Lemon Squeezy webhook) and `/terms` (`src/app/api/terms/route.ts`); just-learn's `src/app/terms/[type]/page.tsx` imports `/terms` (homepage `b39adfc`, just-learn `4a50d62`).
 
 ## Territories it holds in
 
@@ -17,7 +17,7 @@ It is held jointly by three things that never call each other: the tsup config f
 
 ## What a violation looks like
 
-A route handler imports a value and gets a client reference, or crashes at import, instead of the value — or a server-safe bundle gains the banner and the same happens everywhere it is imported. It only shows in a consumer's server build; this repo's `build` and `typecheck` both pass.
+A route handler imports a value and gets a client reference, or crashes at import, instead of the value — or a server-safe bundle gains the banner and the same happens everywhere it is imported. It only shows in a consumer's server build; this repo's `build` and `typecheck` both pass. The banner can be read off the output: `head -c 60 packages/*/dist/{terms,core}.mjs` starts with a source-path comment, not `"use client"` (2026-10-29).
 
 ## Discovery history
 
@@ -25,6 +25,7 @@ A route handler imports a value and gets a client reference, or crashes at impor
 - `d4194f1` — the same split made for subscription: types and plan constants moved behind `/core`.
 
 Two sites, the same reason, found one package at a time.
+
 
 ## Where it will recur
 

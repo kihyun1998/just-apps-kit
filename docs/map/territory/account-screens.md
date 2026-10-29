@@ -42,4 +42,4 @@ What a signed-in user sees about their own account: the header avatar menu, the 
 
 ## Known holes / open
 
-- No error state for a failed delete.
+- No error state for a failed delete. just-apps-homepage's delete route answers with distinct failures (502 `PROVIDER_CANCEL_FAILED`, 500, 409), and the view can show none of them. Tracked: #18

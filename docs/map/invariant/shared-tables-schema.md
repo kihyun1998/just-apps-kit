@@ -15,6 +15,8 @@ The five sites share one storage assumption and almost no calls: `Badge` knows n
 - [subscription-status-ui](../territory/subscription-status-ui.md) — one branch per status.
 - [ui-primitives](../territory/ui-primitives.md) — `Badge` variant keys per status and per source.
 
+Outside this repo, the same values are written or restated by just-apps-homepage's admin routes and Lemon Squeezy webhook, and by roster-ai's `src/app/api/admin/grant/route.ts`; homepage's status route has its own active set, `active` or `trialing` (homepage `b39adfc`, roster-ai `d3d7670`). `git -C ../<app> grep -n just_entitlements` finds them.
+
 ## What a violation looks like
 
 A new status, source or plan written by a webhook is dropped by a `VALID_*` filter, and the user appears to have no subscription or entitlement — no error anywhere. Or the store admits it and the UI renders nothing for it (`expired` today is filtered before the UI, so the missing branch is unreachable).

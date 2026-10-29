@@ -34,9 +34,9 @@ Getting a change from a merged PR to the apps that use it: Changesets records th
 ## Blast radius
 
 - [build](build.md) — `release` runs the build before `changeset publish`.
-- [terms-content](terms-content.md) — a terms revision is only live in an app once that app bumps.
+- [terms-content](terms-content.md) — a terms revision is only live in an app once the Version Packages PR is merged and that app bumps.
 - [plan-catalogue](plan-catalogue.md), [checkout](checkout.md) — changes whose other half sits in an app's server code.
 
 ## Known holes / open
 
-- `packages/auth` has no `CHANGELOG.md` yet; its history before Changesets is in git only.
+- A merged changeset reaches npm only when someone merges the Version Packages PR. #16 has been open since 2026-09-24 and holds the privacy policy v2 changeset (`.changeset/privacy-policy-v2.md`; see [terms-content](terms-content.md)).

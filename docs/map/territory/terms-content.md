@@ -17,6 +17,7 @@ The record lives in a consumer's repository, not this one.
 - `version` falls back to `1` when it is missing or not an integer — a malformed bump reads as version 1, not as an error.
 - An unknown locale falls back to `en-US`.
 - The markdown is inlined as strings at package build time (tsup `.md` text loader), so a consumer needs no `?raw` import support.
+- just-cut and just-cut-print do not import this entry: they fetch just-apps-homepage's `/api/terms`, which serves `getTermsByLocale` (just-cut `881511d`, just-cut-print `0b49882`, `src/app/TermsScreen.tsx`; homepage `b39adfc`, 2026-10-23, `src/app/api/terms/route.ts`). The text they show follows homepage's `@just-apps/auth` version, not their own.
 
 ## Code
 
@@ -36,6 +37,7 @@ The six markdown files sit next to `index.ts`; `ls packages/auth/src/content/ter
 
 ## Blast radius
 
+- [terms-agreement-ui](terms-agreement-ui.md) — the card appends its own `동의` suffix to each `title`, so a title's wording is read inside that sentence (#19).
 - [build](build.md) — the `terms` entry is its own tsup config with the `.md` loader; a new content file type or entry changes it.
 - [terms-agreement-ui](terms-agreement-ui.md) — apps map `TermData` onto `TermItem`; the shared field names (`id`, `type`, `title`, `required`) must keep meaning the same thing.
 - [i18n](i18n.md) — the locale set is the `Locale` type; adding a language means a new markdown file per term here too.
@@ -44,4 +46,4 @@ The six markdown files sit next to `index.ts`; `ls packages/auth/src/content/ter
 ## Known holes / open
 
 - No test pins the loader's fallbacks (missing `version`, unknown locale).
-- `privacy_policy` is version 2 (effective 2026-10-01) while `terms_of_service` and `marketing` stay at 1 (kit#12). The maintainer chose to bump without re-consent, so accounts that agreed before stay recorded at 1 (just-apps-homepage#39). The body's own "버전: 2.0" / "Version: 2.0" line and effective date are hand-kept copies of the frontmatter. Left out of v2 by the maintainer's call, because roster-ai plans to stop using it (roster-ai#210): Google's Gemini API, which roster-ai still sends user prompts to. Nothing in the text says any processor is app-specific.
+- `privacy_policy` is version 2 (effective 2026-10-01) in source while `terms_of_service` and `marketing` stay at 1 (kit#12). Version 2 is not published: the npm `@just-apps/auth@0.7.0` tarball's `dist/terms.mjs` has `version: 1` for all six files (read 2026-10-29), and the release waits on the Version Packages PR, open since 2026-09-24 (#16; see [release](release.md)). Whether that wait is deliberate is not known (maintainer, 2026-10-29). The maintainer chose to bump without re-consent, so accounts that agreed before stay recorded at 1 (just-apps-homepage#39). The body's own "버전: 2.0" / "Version: 2.0" line and effective date are hand-kept copies of the frontmatter. Left out of v2 by the maintainer's call, because roster-ai plans to stop using it (roster-ai#210): Google's Gemini API, which roster-ai still sends user prompts to. Nothing in the text says any processor is app-specific.

@@ -14,11 +14,11 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 
 - `init(supabase)` runs once per store lifetime. Only a failed `getSession` resets `initialized` so the next `init` retries; a failed table query sets `error`, leaves `initialized` true, and is retried only by an explicit `refetch`.
 - `refetch` does nothing without a session. With one, it reads both tables in parallel and relies on RLS to scope rows to the user.
-- Entitlements: rows whose `expires_at` is null or later than the browser's clock.
+- Entitlements: rows whose `expires_at` is null or later than the browser's clock. No `app_id` filter: RLS on `user_id` is the only scope, so the list holds every family app's rows for the user. `useEntitlement(appId)` filters client-side; `useAllEntitlements` does not. Tracked: #17
 - Subscription: the newest row by `created_at` whose status is one of `active`, `trialing`, `past_due`, `paused`, `canceled`.
 - Any row whose source, status or plan is outside the `VALID_*` lists is dropped silently: an unknown value looks the same as no row.
 - `clear()` resets everything, including `_supabase`, so the next sign-in has to call `init` again.
-- Hooks select the stored array and filter outside the selector. A selector returning a fresh array loops forever under zustand v5.
+- Hooks select the stored array and filter outside the selector. A selector returning a fresh array loops forever under zustand v5 (moved here from a source comment, commit `524ad01`, 2026-09-23).
 - `useEntitlement` reports `hasPro: false` while the store holds an error.
 
 ## Code

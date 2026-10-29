@@ -18,6 +18,7 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 - Polling starts on the overlay's `Checkout.Success` event, or immediately when the overlay API is missing and the URL opened in a new tab instead.
 - Two independent pollers with the same 30 s / 2 s defaults: `useCheckout` stops after 5 consecutive failures; `CheckoutActivation` ignores failures and polls an injected `onPoll` until timeout.
 - On success neither one refreshes the store; the app does that in `onSuccess`.
+- just-apps-homepage's status route counts only `active` and `trialing` as `hasActiveSubscription`, and rate-limits to 5 calls per 10 s, sized for a 2 s poll (`src/app/api/subscription/status/route.ts`, homepage `b39adfc`, 2026-10-23). An `intervalMs` under 2 s runs into that limit; `useCheckout` counts each refused poll as a failure.
 - Callback props (`onPoll`, `onSuccess`, `onTimeout`) are read through refs, so a caller passing a fresh function every render does not restart polling. `AuthCallbackView` does the same with `onRoute` ([login](login.md)).
 
 ## Code
@@ -46,3 +47,5 @@ Lemon Squeezy's Lemon.js is the binding reference (see `docs/agents/thegraph.md`
 ## Known holes / open
 
 - `useCheckout` reports its failures in English, not through `t()`.
+- The overlay handler listens for `Checkout.Success` only (`setupLemonEventHandler`). A user who closes the overlay without paying leaves `status` at `"overlay"` until the caller runs `reset`.
+- No consumer renders `CheckoutActivation` (homepage `b39adfc` names it only in the status route's rate-limit comment).

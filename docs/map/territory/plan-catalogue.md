@@ -15,6 +15,7 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 - `PLAN_ENTITLEMENTS` maps a plan id to the app ids an active subscription entitles. An app id here needs a matching `app.<id>` label in the subscription translations, or the badge shows the raw id.
 - `PLAN_LABELS` is keyed by plan id with `ko` / `en` fields — not by `Locale`.
 - Both maps are typed `Record<string, …>`, not `Record<PlanId, …>`, so a missing plan is not a type error.
+- Server code reads them from `/core`: just-apps-homepage's admin grant routes, the Lemon Squeezy webhook and `src/lib/app-ids.ts`. Its admin modals, which are client components, import them from the main entry (homepage `b39adfc`, 2026-10-23). just-apps-homepage is the only consumer of `@just-apps/subscription`: `grep -l '"@just-apps/subscription"' ../*/package.json`.
 
 ## Code
 
