@@ -29,7 +29,7 @@ pnpm link ../just-apps-kit/packages/auth
 2. On merge to `main`, the Release workflow opens a **Version Packages** PR (version bump + `CHANGELOG.md`).
 3. Merging that PR publishes the bumped packages to npm.
 
-The workflow needs an `NPM_TOKEN` repository secret with publish rights to the `@just-apps` scope.
+Publishing uses npm trusted publishing: each package on npmjs.com trusts `kihyun1998/just-apps-kit`'s `release.yml`, and the workflow gets a short-lived OIDC token (`id-token: write`) instead of a stored npm token. It runs npm 11 (trusted publishing needs npm 11.5.1+ and Node 22.14+); `pnpm publish` hands the upload to that npm.
 
 ## License
 
