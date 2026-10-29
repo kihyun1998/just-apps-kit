@@ -4,8 +4,8 @@ Just Apps shared **subscription package**, split into three entries so each app 
 
 | Entry | Contents | Runs on |
 |---|---|---|
-| `@just-apps/subscription` | UI components (pricing, subscription status, upgrade, trial / payment-failure banners, post-payment activation) | client (`"use client"`) |
-| `@just-apps/subscription/core` | types + plan constants (`PLAN_ENTITLEMENTS`, `PLAN_LABELS`) | anywhere — import this from route handlers and other server code |
+| `@just-apps/subscription` | UI components (subscription status, payment-failure banner) | client (`"use client"`) |
+| `@just-apps/subscription/core` | types, the value lists they come from (`SUBSCRIPTION_STATUSES`, `ENTITLEMENT_SOURCES`, `PLAN_IDS` and their `is*` guards) and plan constants (`PLAN_ENTITLEMENTS`, `PLAN_LABELS`) | anywhere — import this from route handlers and other server code |
 | `@just-apps/subscription/store` | `useSubscriptionStore` (Zustand, over the shared `just_entitlements` / `just_subscriptions` tables), `useSubscription`, `useEntitlement`, `useAllEntitlements`, `useCheckout` (Lemon Squeezy) | client (`"use client"`) |
 
 > Webhook handling, admin grant/revoke APIs and the checkout / status endpoints stay in the app. The Supabase client is created by the app and handed to the store with `init(supabase)`.
@@ -16,8 +16,8 @@ Just Apps shared **subscription package**, split into three entries so each app 
 
 ### What's included
 
-- **6 React components** — `PricingView`, `SubscriptionView`, `UpgradeModal`, `TrialBanner`, `PaymentFailedBanner`, `CheckoutActivation`
-- **4 internal UI primitives** — `Badge` (11 variants), `Button`, `Modal`, `Spinner`. The components use them; the package does not export them
+- **2 React components** — `SubscriptionView`, `PaymentFailedBanner`
+- **3 internal UI primitives** — `Badge` (11 variants), `Button`, `Spinner`. The components use them; the package does not export them
 - **Types** — `PlanId`, `SubscriptionStatus`, `EntitlementSource`, `Subscription`, `Entitlement`, `Locale`, `TranslationOverrides`
 - **Constants** — `PLAN_ENTITLEMENTS`, `PLAN_LABELS` (also on `/core`, which is server-safe)
 - **Data layer** (`/store`) — `useSubscriptionStore`, `useSubscription`, `useEntitlement`, `useAllEntitlements`, `useCheckout`
@@ -37,9 +37,9 @@ Same as the auth package:
 
 The principles below apply to the UI components; the `/store` entry is the data layer that feeds them.
 
-1. **Props-only** — all data (`subscription`, `entitlements`) and handlers (`onStartSubscription`, `onUpgrade`, `onPoll`) are passed as props
+1. **Props-only** — all data (`subscription`, `entitlements`) and handlers (`onStartSubscription`, `onUpgrade`, `onManageBilling`) are passed as props
 2. **Framework-agnostic** — no `next/*` imports; Tauri/Vite compatible
-3. **Stateless components** — `useState` is used only for internal UI state (interval toggle, confirmation step, etc.); business state is injected from outside
+3. **Stateless components** — business state is injected from outside; the current components hold no state of their own
 4. **Provider-agnostic** — not coupled to Lemon Squeezy, Stripe, Paddle, or any specific provider
 
 ---
@@ -96,19 +96,26 @@ Required tokens (same as the auth package, plus the following):
 Initialise the store once with your Supabase client (e.g. in your auth store when a session appears), then feed the hooks into the components.
 
 ```tsx
-import { PricingView } from "@just-apps/subscription";
-import { useSubscription, useCheckout } from "@just-apps/subscription/store";
+import { SubscriptionView } from "@just-apps/subscription";
+import { useSubscription, useAllEntitlements, useCheckout } from "@just-apps/subscription/store";
 
-export function PricingPage() {
-  const { subscription } = useSubscription();
-  const { startCheckout, status } = useCheckout();
+export function SubscriptionPanel() {
+  const { subscription, isLoading, error } = useSubscription();
+  const { entitlements } = useAllEntitlements();
+  const { startCheckout } = useCheckout();
 
   return (
-    <PricingView
+    <SubscriptionView
       locale="ko-KR"
-      currentPlanId={subscription?.planId ?? null}
-      isLoading={status === "loading"}
-      onSelectPlan={(planId, interval) => startCheckout(interval)}
+      subscription={subscription}
+      entitlements={entitlements}
+      isLoading={isLoading}
+      error={error}
+      onStartSubscription={() => startCheckout("monthly")}
+      onCancelSubscription={() => {/* open your cancel dialog */}}
+      onResubscribe={() => startCheckout("monthly")}
+      onManageBilling={() => {/* open the billing portal */}}
+      onUpgrade={() => startCheckout("monthly")}
     />
   );
 }
@@ -117,34 +124,6 @@ export function PricingPage() {
 ---
 
 ## 4. Components API
-
-### `<PricingView />`
-
-Free / Pro two-plan cards + monthly/yearly interval toggle.
-
-```tsx
-interface PricingViewProps {
-  locale: Locale;
-  currentPlanId: PlanId | null;
-  isLoading: boolean;
-  onSelectPlan: (planId: PlanId, interval: "monthly" | "yearly") => void;
-  freeFeatures?: string[];
-  proFeatures?: string[];
-}
-```
-
-| Prop | Description |
-|---|---|
-| `currentPlanId` | The currently subscribed plan (`null` means Free) |
-| `onSelectPlan` | Called when Pro is selected. `interval` reflects the internal toggle state |
-| `freeFeatures` / `proFeatures` | (optional) Replace the default feature strings. Defaults exist per language |
-
-**Behavior:**
-- The monthly/yearly interval is internal `useState`
-- The current plan's card shows a "Current plan" badge
-- The Pro button shows a spinner while `isLoading`
-
----
 
 ### `<SubscriptionView />`
 
@@ -182,47 +161,6 @@ When `entitlements.length > 0`, an "Active entitlements" section is appended at 
 
 ---
 
-### `<UpgradeModal />`
-
-Upgrade-prompt modal shown from feature gates.
-
-```tsx
-interface UpgradeModalProps {
-  locale: Locale;
-  open: boolean;
-  feature?: string;
-  onUpgrade: () => void;
-  onClose: () => void;
-}
-```
-
-| Prop | Description |
-|---|---|
-| `feature` | (optional) Name of the gated feature. If present, produces a "To use X..." message |
-| `onUpgrade` | Upgrade button click |
-
-Built on the `<Modal />` primitive. ESC / outside click / focus trap are handled automatically.
-
----
-
-### `<TrialBanner />`
-
-Banner shown at the top of the page with the remaining trial time.
-
-```tsx
-interface TrialBannerProps {
-  locale: Locale;
-  daysLeft: number;
-  onUpgrade: () => void;
-}
-```
-
-```tsx
-<TrialBanner locale="ko-KR" daysLeft={5} onUpgrade={() => router.push("/pricing")} />
-```
-
----
-
 ### `<PaymentFailedBanner />`
 
 Payment failure notice. It's rendered automatically inside the `past_due` section of `SubscriptionView`, but you can also use it elsewhere if needed.
@@ -233,34 +171,6 @@ interface PaymentFailedBannerProps {
   onManageBilling: () => void;
 }
 ```
-
----
-
-### `<CheckoutActivation />`
-
-Polling UI shown between payment completion and the backend webhook → entitlement reflection.
-
-```tsx
-interface CheckoutActivationProps {
-  locale: Locale;
-  /** Polling function called every 2s. Returning true means activation is complete. */
-  onPoll: () => Promise<boolean>;
-  onSuccess: () => void;
-  onTimeout: () => void;
-  maxWaitMs?: number; // default 30000
-  intervalMs?: number; // default 2000
-}
-```
-
-**Behavior:**
-
-1. Calls `onPoll()` immediately on mount
-2. Returning `true` → success UI (checkmark icon + "Activation complete") + `onSuccess()`
-3. Returning `false` → retries after `intervalMs`
-4. Exceeding `maxWaitMs` → timeout UI + `onTimeout()`
-5. Throws from `onPoll` are ignored (tolerates flaky networks)
-
-**Key point:** callback refs are stabilized via `useRef`, so consumers don't have to use `useCallback` to avoid infinite re-renders.
 
 ---
 
@@ -295,22 +205,6 @@ Badge with built-in color variants for subscription states / entitlement sources
 
 Same shadcn-style Button as the auth package (identical variants/sizes). Deduplication is possible later, but currently each package owns its own to stay independent.
 
-### `<Modal />`
-
-Accessibility-aware modal. ESC, outside click, focus trap (Tab cycling), and body scroll lock are handled automatically.
-
-```tsx
-interface ModalProps {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-  wide?: boolean;      // max-w-2xl vs max-w-md
-  noPadding?: boolean; // removes inner padding
-}
-```
-
 ### `<Spinner />`
 
 Same as the auth package (Loader2 wrapper).
@@ -322,17 +216,21 @@ Same as the auth package (Loader2 wrapper).
 ```ts
 export type Locale = "ko-KR" | "en-US";
 
-export type PlanId = "just_apps_pro" | "just_apps_ult";
+export const PLAN_IDS = ["just_apps_pro", "just_apps_ult"] as const;
+export type PlanId = (typeof PLAN_IDS)[number];
 
-export type SubscriptionStatus =
-  | "active"
-  | "past_due"
-  | "canceled"
-  | "expired"
-  | "paused"
-  | "trialing";
+export const SUBSCRIPTION_STATUSES = [
+  "active", "past_due", "canceled", "expired", "paused", "trialing",
+] as const;
+export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 
-export type EntitlementSource = "subscription" | "admin" | "promo" | "trial";
+export const ENTITLEMENT_SOURCES = ["subscription", "admin", "promo", "trial"] as const;
+export type EntitlementSource = (typeof ENTITLEMENT_SOURCES)[number];
+
+// Type guards over the same lists, for rows read from the database
+export function isPlanId(value: unknown): value is PlanId;
+export function isSubscriptionStatus(value: unknown): value is SubscriptionStatus;
+export function isEntitlementSource(value: unknown): value is EntitlementSource;
 
 export interface Subscription {
   id: string;
@@ -354,6 +252,8 @@ export type TranslationOverrides = Partial<
   Record<string, Record<Locale, string>>
 >;
 ```
+
+The store reads rows through these guards, so a value outside a list is dropped. Server code that writes or filters these columns can import the same lists from `/core` instead of restating them.
 
 ---
 
@@ -412,14 +312,11 @@ t("missing.key", "ko-KR");
 
 | Namespace | Purpose |
 |---|---|
-| `pricing.*` | PricingView (title, monthly/yearly, free/pro, current_plan, select, ...) |
-| `subscription.*` | SubscriptionView (active, canceled, past_due, paused, trialing, available_until, manage_billing, cancel, resubscribe, start, none, ...) |
-| `trial.*` | TrialBanner (banner, upgrade) |
-| `upgrade.*` | UpgradeModal (title, description, description.feature, button, cancel) |
+| `subscription.*` | SubscriptionView (title, active, canceled, past_due, paused, trialing, available_until, manage_billing, cancel, resubscribe, start, none) |
+| `trial.*` | SubscriptionView's trialing section (banner, upgrade) |
 | `payment_failed.*` | PaymentFailedBanner (title, description, action) |
-| `checkout.*` | CheckoutActivation (activating, success, timeout) |
 | `app.*` | `app.{appId}` — per-appId label (for entitlement badges, etc.) |
-| `common.*` | Shared (error, etc.) |
+| `common.*` | Shared (error) |
 
 See `packages/subscription/src/i18n/translations.ts` for the exact key list. The exported `TranslationKey` type is the union of those keys; `t()` itself accepts any string, since `app.{appId}` keys are built at runtime.
 
@@ -428,16 +325,14 @@ See `packages/subscription/src/i18n/translations.ts` for the exact key list. The
 Same as auth:
 
 ```tsx
-<PricingView
+<SubscriptionView
   locale="ko-KR"
-  currentPlanId={null}
-  isLoading={false}
-  onSelectPlan={...}
-  // no translations prop — PricingView currently doesn't support overrides (uses defaults)
+  {...props}
+  // no translations prop — SubscriptionView currently doesn't support overrides (uses defaults)
 />
 ```
 
-> ⚠️ Some components don't have a `translations` prop. If you need it, add the prop to the specific component (see the auth/TermsAgreementView pattern).
+> ⚠️ No subscription component has a `translations` prop yet. If you need it, add the prop to the specific component (see the auth/TermsAgreementView pattern).
 
 ---
 
@@ -494,30 +389,7 @@ export function MyPage() {
 
 ### Tauri / Vite apps
 
-A Tauri app can use `/store` as-is when it talks to the same Supabase project, or keep its own store and reuse only the UI components:
-
-```tsx
-// packages/just-cut/src/pages/Pricing.tsx
-import { PricingView } from "@just-apps/subscription";
-import { useSubscription } from "./lib/subscription-store"; // the Tauri app's own store
-
-export function PricingPage() {
-  const { subscription } = useSubscription();
-
-  return (
-    <PricingView
-      locale="ko-KR"
-      currentPlanId={subscription?.planId ?? null}
-      isLoading={false}
-      onSelectPlan={async (planId, interval) => {
-        // Tauri: open the checkout URL in the browser
-        const { url } = await fetchCheckoutUrl(planId, interval);
-        await open(url); // @tauri-apps/api/shell
-      }}
-    />
-  );
-}
-```
+A Tauri app can use `/store` as-is when it talks to the same Supabase project, or keep its own store and map its rows onto the package's `Subscription` / `Entitlement` types before rendering `SubscriptionView`. `useCheckout` takes its endpoints as options (`checkoutApiUrl`, `statusApiUrl`), so it can point at the app's own backend or a Supabase Edge Function.
 
 ---
 
@@ -572,9 +444,6 @@ The RLS policy allows SELECT where `user_id = auth.uid()`. Writes go through the
 
 **Q. `useCheckout` is tied to Lemon Squeezy. What if an app uses another provider?**
 A. The endpoints are options (`checkoutApiUrl`, `statusApiUrl`), so any app on Lemon Squeezy can reuse it against its own backend. An app on a different provider writes its own checkout hook and still uses the store and UI.
-
-**Q. `CheckoutActivation` contains polling logic — why is it in the package?**
-A. The polling **function** is injected as the `onPoll` prop, so the package is only responsible for timer/state management. It doesn't call Supabase or a specific API directly. I drew the logic-vs-presentation line at "is the side effect injected via DI?"
 
 **Q. The Badge variants are too subscription-centric. I want a general-purpose badge.**
 A. The current Badge is optimized for this package's internal use. If you need a general-purpose Badge, split it into a separate UI package or build your own in the app.

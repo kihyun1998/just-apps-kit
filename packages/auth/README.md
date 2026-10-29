@@ -490,7 +490,7 @@ Overridden keys apply only within that component tree (not globally).
 | `mypage.*` | `title`, `email`, `joined`, `delete_account`, `logout` |
 | `delete.*` | `title`, `subtitle`, `login_required`, `login`, `data_title`, `data_email`, `data_agreements`, `data_activity`, `warning`, `confirm_button`, `confirm_title`, `confirm_message`, `confirm_yes`, `confirm_cancel`, `processing`, `success` |
 | `usermenu.*` | `admin`, `admin_badge`, `mypage`, `logout` |
-| `common.*` | `loading`, `auth_processing`, `login`, `go_home` |
+| `common.*` | `login`, `go_home` |
 | `footer.*` | `copyright` |
 
 `TranslationKey` is the union of the built-in keys above, for code that should only name one of them:

@@ -8,5 +8,13 @@ export type {
   Subscription,
   Entitlement,
 } from "./types";
+export {
+  PLAN_IDS,
+  SUBSCRIPTION_STATUSES,
+  ENTITLEMENT_SOURCES,
+  isPlanId,
+  isSubscriptionStatus,
+  isEntitlementSource,
+} from "./types";
 
 export { PLAN_ENTITLEMENTS, PLAN_LABELS } from "./constants";

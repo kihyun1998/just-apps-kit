@@ -55,7 +55,7 @@ grep -lzE '## Code\s+\*\*None\.\*\*' docs/map/territory/*.md                  # 
 
 ## Nodes
 
-Territories: [login](territory/login.md) · [terms-agreement-ui](territory/terms-agreement-ui.md) · [terms-content](territory/terms-content.md) · [account-screens](territory/account-screens.md) · [plan-catalogue](territory/plan-catalogue.md) · [pricing-ui](territory/pricing-ui.md) · [subscription-status-ui](territory/subscription-status-ui.md) · [checkout](territory/checkout.md) · [entitlement-store](territory/entitlement-store.md) · [i18n](territory/i18n.md) · [ui-primitives](territory/ui-primitives.md) · [build](territory/build.md) · [release](territory/release.md)
+Territories: [login](territory/login.md) · [terms-agreement-ui](territory/terms-agreement-ui.md) · [terms-content](territory/terms-content.md) · [account-screens](territory/account-screens.md) · [plan-catalogue](territory/plan-catalogue.md) · [subscription-status-ui](territory/subscription-status-ui.md) · [checkout](territory/checkout.md) · [entitlement-store](territory/entitlement-store.md) · [i18n](territory/i18n.md) · [ui-primitives](territory/ui-primitives.md) · [build](territory/build.md) · [release](territory/release.md)
 
 Invariants: [client-server-entry-split](invariant/client-server-entry-split.md) · [props-only-di](invariant/props-only-di.md) · [peer-singletons](invariant/peer-singletons.md) · [shared-tables-schema](invariant/shared-tables-schema.md) · [terms-version-family-wide](invariant/terms-version-family-wide.md) · [tailwind-scan-and-tokens](invariant/tailwind-scan-and-tokens.md)
 

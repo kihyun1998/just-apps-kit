@@ -16,18 +16,18 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 - `refetch` does nothing without a session. With one, it reads both tables in parallel and relies on RLS to scope rows to the user.
 - Entitlements: rows whose `expires_at` is null or later than the browser's clock. No `app_id` filter: RLS on `user_id` is the only scope, so the list holds every family app's rows for the user. `useEntitlement(appId)` filters client-side; `useAllEntitlements` does not. Tracked: #17
 - Subscription: the newest row by `created_at` whose status is one of `active`, `trialing`, `past_due`, `paused`, `canceled`.
-- Any row whose source, status or plan is outside the `VALID_*` lists is dropped silently: an unknown value looks the same as no row.
+- Any row whose source, status or plan fails its `is*` guard from `types.ts` is dropped silently: an unknown value looks the same as no row. The status filter is `SUBSCRIPTION_STATUSES` without `expired`.
 - `clear()` resets everything, including `_supabase`, so the next sign-in has to call `init` again.
 - Hooks select the stored array and filter outside the selector. A selector returning a fresh array loops forever under zustand v5 (moved here from a source comment, commit `524ad01`, 2026-09-23).
 - `useEntitlement` reports `hasPro: false` while the store holds an error.
 
 ## Code
 
-- `packages/subscription/src/store/useSubscriptionStore.ts` — `useSubscriptionStore`, `VALID_SOURCES`, `VALID_STATUSES`, `VALID_PLANS`
+- `packages/subscription/src/store/useSubscriptionStore.ts` — `useSubscriptionStore`, `LISTED_STATUSES`
 - `packages/subscription/src/hooks/use-entitlement.ts` — `useEntitlement`
 - `packages/subscription/src/hooks/use-all-entitlements.ts` — `useAllEntitlements`
 - `packages/subscription/src/hooks/use-subscription.ts` — `useSubscription`
-- `packages/subscription/src/types.ts` — `Subscription`, `Entitlement`, `SubscriptionStatus`, `EntitlementSource`
+- `packages/subscription/src/types.ts` — `Subscription`, `Entitlement`, `SUBSCRIPTION_STATUSES`, `ENTITLEMENT_SOURCES`, `isSubscriptionStatus`, `isEntitlementSource`, `isPlanId`
 - `packages/subscription/src/store.ts` — `useSubscriptionStore`, `useCheckout`
 
 ## Reference behaviour
@@ -46,7 +46,7 @@ supabase-js v2 is the binding reference (see `docs/agents/thegraph.md`); the que
 ## Blast radius
 
 - [subscription-status-ui](subscription-status-ui.md) — renders what the store produces.
-- [plan-catalogue](plan-catalogue.md) — `VALID_PLANS` duplicates `PlanId`.
+- [plan-catalogue](plan-catalogue.md) — a subscription whose plan is not in `PLAN_IDS` is dropped.
 - [checkout](checkout.md) — same entry; activation depends on the app calling `refetch`.
 - [build](build.md) — `zustand` and `@supabase/supabase-js` must stay external in the `store` config.
 

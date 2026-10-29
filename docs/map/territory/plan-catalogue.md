@@ -20,7 +20,7 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 ## Code
 
 - `packages/subscription/src/constants.ts` — `PLAN_ENTITLEMENTS`, `PLAN_LABELS`
-- `packages/subscription/src/types.ts` — `PlanId`
+- `packages/subscription/src/types.ts` — `PLAN_IDS`, `PlanId`, `isPlanId`
 - `packages/subscription/src/core.ts` — `PLAN_ENTITLEMENTS`, `PLAN_LABELS`, `PlanId`
 
 ## Reference behaviour
@@ -34,12 +34,11 @@ Adjacent: [SPEC_SUBSCRIPTION.md](https://github.com/kihyun1998/just-apps-homepag
 
 ## Blast radius
 
-- [pricing-ui](pricing-ui.md) — `PricingView` reads `PLAN_ENTITLEMENTS.just_apps_pro` for its app count and hardcodes the `just_apps_pro` card.
 - [subscription-status-ui](subscription-status-ui.md) — renders the literal "Pro" for every subscription, whatever its plan.
-- [entitlement-store](entitlement-store.md) — `VALID_PLANS` drops any subscription whose plan is not listed there.
+- [entitlement-store](entitlement-store.md) — `isPlanId` drops any subscription whose plan is not in `PLAN_IDS`.
 - [i18n](i18n.md) — one `app.<id>` key per entitled app id.
 - [release](release.md) — the homepage's server grant route imports these values from `/core`; a change ships only when it bumps.
 
 ## Known holes / open
 
-- **Ultimate is planned, not built.** `just_apps_ult` is in `PlanId` and in the store's `VALID_PLANS`, but it is commented out of `PLAN_LABELS`, absent from `PLAN_ENTITLEMENTS`, and has no card in `PricingView`. A first slice starts at `constants.ts` and then follows every edge above.
+- **Ultimate is planned, not built.** `just_apps_ult` is in `PLAN_IDS`, but it is commented out of `PLAN_LABELS` and absent from `PLAN_ENTITLEMENTS`; `PLAN_LABELS` is keyed by `string`, not `PlanId`, and checkout sends no plan id ([checkout](checkout.md)). Deferred to the Ultimate work (maintainer, 2026-10-29). A first slice starts at `constants.ts` and then follows every edge above.
