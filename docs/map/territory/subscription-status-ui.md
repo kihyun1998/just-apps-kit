@@ -15,6 +15,7 @@ Telling a user where their subscription stands and what they can do next: the su
 - Each entitlement renders as a `Badge` whose variant is the entitlement's `source`, and whose label is `app.<appId>` if that key exists, else the raw id.
 - Trial days left are computed from `trialEndsAt` against the browser clock.
 - Loading and error states replace the whole panel.
+- just-apps-homepage fills `entitlements` from `useAllEntitlements` and starts the store with `appIds: JUST_APPS_APP_IDS`, so only Just Apps' own grants appear as badges (homepage `6f85251`, 2026-10-29; homepage#84, [entitlement-store](entitlement-store.md)).
 
 ## Code
 
@@ -40,4 +41,4 @@ Telling a user where their subscription stands and what they can do next: the su
 
 ## Known holes / open
 
-- just-apps-homepage fills `entitlements` from `useAllEntitlements` (`src/views/MyPage.tsx`, homepage `b39adfc`), which returns every app's rows unless the app passes `appIds` to `init` ([entitlement-store](entitlement-store.md)). Until homepage passes its ids, badges for sibling apps' grants appear here (homepage `b39adfc`). just-apps-homepage#15, closed 2026-09-24, split this client-side part off to #17; no homepage issue tracks passing the ids.
+**None.**
