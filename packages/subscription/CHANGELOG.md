@@ -1,5 +1,31 @@
 # @just-apps/subscription
 
+## 0.5.0
+
+### Minor Changes
+
+- 608e06a: `useSubscriptionStore.init(supabase, { appIds })` scopes the entitlements the store reads to the given app ids, so `useAllEntitlements` no longer returns rows other family apps granted on the same Supabase project (#17). Without `appIds` the store behaves as before. Calling `init` again with a different client or scope reloads instead of being ignored, and a failed load leaves the store uninitialised so the next `init` retries.
+
+  `refetch` now settles `isLoading` when there is no session and reports a failed session check through `error` instead of rejecting. The internal `_supabase` field is no longer part of the store's state, and `clear()` no longer logs.
+
+- 19ac096: Checkout and plan labels know which plan they are for.
+
+  - Breaking: `useCheckout().startCheckout` takes `{ planId, interval }` instead of an interval, and sends both in the request body. An app's checkout endpoint that reads only `interval` keeps working.
+  - Breaking: `PLAN_LABELS` is `Partial<Record<PlanId, Record<Locale, string>>>`: `PLAN_LABELS.just_apps_pro["ko-KR"]` instead of `.ko`. Plans without a label (`just_apps_ult`) are absent.
+  - `SubscriptionView` shows the subscription's plan label (or its id) instead of a fixed "Pro".
+  - New `BILLING_INTERVALS` / `BillingInterval` and `StartCheckoutOptions` exports.
+
+- c3a8faa: Both packages' `t()` are now one function, `t(key, locale, overrides?, params?)`, built from a shared source and inlined into each package; `Locale` and `TranslationOverrides` come from the same definition.
+
+  - `@just-apps/auth`: `t()` takes `params` and replaces each `{name}`. An empty-string override is now used as given instead of falling back to the built-in text, so an app can blank a label.
+  - `@just-apps/subscription`: `{name}` is replaced at every occurrence, literally (a `$` in the value is no longer interpreted). `SubscriptionView` and `PaymentFailedBanner` take a `translations` prop. The "Active Entitlements" heading is the new `subscription.entitlements` key instead of inline text.
+
+- feebf7f: `@just-apps/subscription`: the status, entitlement-source and plan values now live in one place. `SUBSCRIPTION_STATUSES`, `ENTITLEMENT_SOURCES` and `PLAN_IDS` (with `isSubscriptionStatus`, `isEntitlementSource`, `isPlanId`) are exported from the main entry and from `/core`, and `SubscriptionStatus`, `EntitlementSource` and `PlanId` are derived from them. Server code can validate a value against the same list the store uses.
+
+  Breaking: `PricingView`, `UpgradeModal`, `TrialBanner` and `CheckoutActivation` are removed, together with the translation keys only they used (`pricing.*`, `upgrade.*`, `checkout.*`, `trial.start`, `badge.pro`, `badge.free`, `common.loading`, `subscription.expired`). No family app rendered them. `useCheckout` and `SubscriptionView` are unchanged.
+
+  `@just-apps/auth`: the unused `common.loading` and `common.auth_processing` translation keys are removed, so they are no longer part of `TranslationKey`.
+
 ## 0.4.0
 
 ### Minor Changes
