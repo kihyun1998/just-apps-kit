@@ -1,4 +1,4 @@
-// 마크다운을 문자열로 import (tsup/esbuild의 .md text 로더와 짝).
+// Markdown imported as a string (pairs with the tsup/esbuild .md text loader).
 declare module "*.md" {
   const content: string;
   export default content;

@@ -17,7 +17,7 @@ Just Apps shared **subscription package**, split into three entries so each app 
 ### What's included
 
 - **6 React components** — `PricingView`, `SubscriptionView`, `UpgradeModal`, `TrialBanner`, `PaymentFailedBanner`, `CheckoutActivation`
-- **4 UI primitives** — `Badge` (8 variants), `Button`, `Modal`, `Spinner`
+- **4 internal UI primitives** — `Badge` (11 variants), `Button`, `Modal`, `Spinner`. The components use them; the package does not export them
 - **Types** — `PlanId`, `SubscriptionStatus`, `EntitlementSource`, `Subscription`, `Entitlement`, `Locale`, `TranslationOverrides`
 - **Constants** — `PLAN_ENTITLEMENTS`, `PLAN_LABELS` (also on `/core`, which is server-safe)
 - **Data layer** (`/store`) — `useSubscriptionStore`, `useSubscription`, `useEntitlement`, `useAllEntitlements`, `useCheckout`
@@ -266,17 +266,18 @@ interface CheckoutActivationProps {
 
 ## 5. UI Primitives
 
+These are internal: the components below are built on them, and no entry exports them. Their APIs are described so a change to a component's look can be traced to them.
+
 ### `<Badge />`
 
 Badge with built-in color variants for subscription states / entitlement sources.
 
 ```tsx
-import { Badge, type BadgeVariant } from "@just-apps/subscription";
-
+// packages/subscription/src/ui/badge.tsx — internal, not exported
 <Badge variant="active">Pro</Badge>
 ```
 
-**Variants (8):**
+**Variants (11):**
 
 | Variant | Use | Default style |
 |---|---|---|
@@ -396,7 +397,7 @@ Almost identical to the auth package, but with **parameter substitution**:
 import { t } from "@just-apps/subscription";
 
 t("trial.banner", "ko-KR", undefined, { days: "5" });
-// → "트라이얼 5일 남음"
+// → "Pro 체험 중 — 5일 남음"
 
 t("subscription.available_until", "ko-KR", undefined, { date: "2026년 5월 1일" });
 // → "2026년 5월 1일까지 이용 가능"

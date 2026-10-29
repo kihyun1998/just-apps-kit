@@ -52,7 +52,7 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
 
         await get().refetch();
       } catch (e) {
-        // 초기화 실패 시 재시도 가능하도록 initialized를 리셋
+        // Reset initialized so the next init() retries
         set({
           error: e instanceof Error ? e : new Error("Failed to initialize subscription"),
           isLoading: false,

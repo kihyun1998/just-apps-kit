@@ -6,7 +6,7 @@ import privacyPolicyEn from "./privacy_policy.en-US.md";
 import marketingKo from "./marketing.ko-KR.md";
 import marketingEn from "./marketing.en-US.md";
 
-// 가족 전체의 단일 terms 소스 — docs/map/territory/terms-content.md
+// The family's single terms source — docs/map/territory/terms-content.md
 export interface TermData {
   id: string;
   type: string;

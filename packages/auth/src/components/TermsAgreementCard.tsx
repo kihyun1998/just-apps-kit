@@ -22,7 +22,7 @@ export interface TermsAgreementCardProps {
   onCancel?: () => void;
   termsViewUrl?: (type: string, locale: Locale) => string;
   translations?: TranslationOverrides;
-  /** 카드 최외곽 div에 추가로 붙일 className. 너비 / margin / 배경 커스터마이즈용. */
+  /** Extra className on the card's outermost div, for width, margin or background. */
   className?: string;
 }
 

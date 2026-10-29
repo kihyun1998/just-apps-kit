@@ -13,17 +13,17 @@ export interface TermsAgreementViewProps {
   onToggleLocale: () => void;
   onToggleTheme?: () => void;
   onSubmit: (agreed: Record<string, boolean>) => Promise<void>;
-  /** 동의 거부 시 호출. 있으면 제출 버튼 아래에 "동의하지 않고 나가기" 링크가 표시된다.
-   *  앱 측에서 로그아웃 / 홈 이동 등 원하는 동작을 연결한다. */
+  /** Called when the user declines. When set, a "Decline and leave" link appears under the submit button;
+   *  the app wires it to sign-out, going home, or whatever it needs. */
   onCancel?: () => void;
   termsViewUrl?: (type: string, locale: Locale) => string;
   logoText?: string;
   logoHref?: string;
   headerSlot?: React.ReactNode;
   footerSlot?: React.ReactNode;
-  /** true면 기본 헤더(로고 + locale/theme 토글)를 렌더하지 않는다. */
+  /** When true, the default header (logo + locale/theme toggles) is not rendered. */
   hideHeader?: boolean;
-  /** true면 기본 © 푸터를 렌더하지 않는다. */
+  /** When true, the default © footer is not rendered. */
   hideFooter?: boolean;
   translations?: TranslationOverrides;
 }
