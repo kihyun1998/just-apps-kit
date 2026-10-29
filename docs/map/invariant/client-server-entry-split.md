@@ -17,7 +17,7 @@ It is held jointly by three things that never call each other: the tsup config f
 
 ## What a violation looks like
 
-A route handler imports a value and gets a client reference, or crashes at import, instead of the value — or a server-safe bundle gains the banner and the same happens everywhere it is imported. It only shows in a consumer's server build; this repo's `build` and `typecheck` both pass. The banner can be read off the output: `head -c 60 packages/*/dist/{terms,core}.mjs` starts with a source-path comment, not `"use client"` (2026-10-29).
+A route handler imports a value and gets a client reference, or crashes at import, instead of the value — or a server-safe bundle gains the banner and the same happens everywhere it is imported. In a consumer it only shows in the server build. Here `pnpm check:dist` (`scripts/check-dist.mjs`, run in CI and before `changeset publish`) fails on it: a server-safe entry with the banner or a `react`, `react-dom` or `lucide-react` import, or a client entry without the banner.
 
 ## Discovery history
 
@@ -29,4 +29,4 @@ Two sites, the same reason, found one package at a time.
 
 ## Where it will recur
 
-Any time a server route in a consumer wants something from this kit: if the thing lives in a banner entry, it needs a banner-free entry — and that entry's import graph must be checked, not just its config.
+Any time a server route in a consumer wants something from this kit: if the thing lives in a banner entry, it needs a banner-free entry — and that entry's import graph must be checked, not just its config. A new server-safe subpath goes into `SERVER_SAFE` in `scripts/check-dist.mjs`; until it does, the check treats it as a client entry and fails for the missing banner.

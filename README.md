@@ -13,6 +13,7 @@ Shared packages for the Just Apps family.
 pnpm install
 pnpm build       # build every package
 pnpm typecheck   # tsc --noEmit in every package
+pnpm check:dist  # after build: dist matches each package's exports
 pnpm -F @just-apps/auth dev   # rebuild on change
 ```
 

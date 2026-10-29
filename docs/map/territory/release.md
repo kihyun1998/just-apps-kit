@@ -10,7 +10,7 @@ Getting a change from a merged PR to the apps that use it: Changesets records th
 
 ## Design model
 
-- CI on every PR and on `main`: install, `build`, `typecheck`. There is no test step, and no tests exist.
+- CI on every PR and on `main`: install, `build`, `check:dist`, `typecheck`. There is no test step, and no tests exist.
 - Publishing needs the `NPM_TOKEN` repository secret.
 - While a package is `0.x`, a minor bump may break and a `^0.x.y` range does not pick it up; consumers bump explicitly.
 - Which app is on which version is read from the consumers, not recorded here:
@@ -33,7 +33,7 @@ Getting a change from a merged PR to the apps that use it: Changesets records th
 
 ## Blast radius
 
-- [build](build.md) — `release` runs the build before `changeset publish`.
+- [build](build.md) — `release` runs the build and `check:dist` before `changeset publish`, so a failed check stops the publish.
 - [terms-content](terms-content.md) — a terms revision is only live in an app once the Version Packages PR is merged and that app bumps.
 - [plan-catalogue](plan-catalogue.md), [checkout](checkout.md) — changes whose other half sits in an app's server code.
 
