@@ -36,7 +36,7 @@ Getting a change from a merged PR to the apps that use it: Changesets records th
 ## Blast radius
 
 - [build](build.md) — `release` runs the build and `check:dist` before `changeset publish`, so a failed check stops the publish.
-- [terms-content](terms-content.md) — a terms revision is only live in an app once the Version Packages PR is merged and that app bumps.
+- [terms-content](terms-content.md) — a terms revision is only live in an app once the Version Packages PR is merged and that app bumps; for just-cut and just-cut-print, which fetch homepage's `/api/terms`, once homepage bumps.
 - [plan-catalogue](plan-catalogue.md), [checkout](checkout.md) — changes whose other half sits in an app's server code.
 
 ## Known holes / open
